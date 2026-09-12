@@ -8,6 +8,9 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "claude-sonnet-5")
 VISION_MODEL_NAME = os.environ.get("INFLUENCERLAW_VISION_MODEL", MODEL_NAME)
 
+AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
+AUDD_ENDPOINT = "https://api.audd.io/"
+
 # Risk severities used consistently across all four modules.
 RISK_HIGH = "HIGH"
 RISK_MEDIUM = "MEDIUM"
@@ -35,4 +38,5 @@ MODULE_NAMES = {
     "claims": "ClaimCheck (Substantiation)",
     "contract": "Contract Compliance",
     "comparative": "Comparative Advertising",
+    "music": "Music Licensing",
 }
