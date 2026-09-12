@@ -12,10 +12,11 @@ Advertisement Guidelines, 2022.
    ```bash
    pip install -r requirements.txt
    ```
-2. Copy `.env.example` to `.env` and add your Anthropic API key (required) and,
-   optionally, an AudD API key for the music licensing module:
+2. Copy `.env.example` to `.env` and add a free Gemini API key (required -- no
+   card needed, get one at https://aistudio.google.com/apikey) and, optionally,
+   an AudD API key for the music licensing module:
    ```
-   ANTHROPIC_API_KEY=sk-ant-...
+   GEMINI_API_KEY=...
    AUDD_API_KEY=...          # optional -- get a free-tier key at https://dashboard.audd.io/
    ```
 3. Run the app:
@@ -63,7 +64,7 @@ licensing marketplace of any kind.
 - Legal sources: ASCI Code, ASCI Influencer Guidelines, CCPA Misleading
   Advertisement Guidelines 2022 — nothing else.
 - Content input: pasted caption/transcript text, or an Instagram screenshot
-  (read via Claude vision, no OCR binary required). Video upload isn't
+  (read via Gemini vision, no OCR binary required). Video upload isn't
   supported for content — paste the transcript instead.
 - Music licensing (Module E) accepts an audio file directly (mp3/wav/m4a/ogg).
   Video files aren't accepted for audio extraction (no ffmpeg in this build) --
@@ -80,7 +81,7 @@ app.py                          Landing/marketing page (Streamlit entry point)
 pages/1_Run_Review.py           The actual tool: upload form + dashboard
 app/config.py                   models, risk levels, scoring weights (all visible)
 app/legal_retrieval.py          RAG layer: chunk + TF-IDF retrieval over data/legal_sources
-app/llm.py                      Anthropic API wrapper (text + vision, JSON parsing)
+app/llm.py                      Gemini API wrapper (text + vision, JSON parsing) -- free tier, no card needed
 app/parsing.py                  PDF/DOCX contract parsing, screenshot -> text via vision
 app/pipeline.py                 shared Issue type + citation-resolution helpers
 app/scoring.py                  the compliance score rule

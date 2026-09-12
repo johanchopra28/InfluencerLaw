@@ -107,9 +107,10 @@ with st.form("campaign_form"):
     submitted = st.form_submit_button("Run Legal Review", type="primary")
 
 if submitted:
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get("GEMINI_API_KEY"):
         st.error(
-            "ANTHROPIC_API_KEY is not set. Copy .env.example to .env, add your key, and restart the app."
+            "GEMINI_API_KEY is not set. Copy .env.example to .env, add a free key from "
+            "https://aistudio.google.com/apikey, and restart the app."
         )
         st.stop()
 

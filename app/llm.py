@@ -1,8 +1,12 @@
-"""Thin wrapper around the Anthropic API used by every pipeline module.
+"""Thin wrapper around the Google Gemini API used by every pipeline module.
 
 Centralising the call here means every module gets JSON-parsing, retry-on-bad-
 json, and error handling for free, and the rest of the codebase never touches
-the Anthropic SDK directly.
+the Gemini SDK directly.
+
+Uses Gemini rather than a paid-only API deliberately: Google AI Studio issues
+free-tier API keys with no card required, so a publicly hosted demo of this
+app costs nothing to run, regardless of how many people use it.
 """
 from __future__ import annotations
 
@@ -10,9 +14,10 @@ import json
 import re
 from functools import lru_cache
 
-import anthropic
+from google import genai
+from google.genai import types
 
-from app.config import ANTHROPIC_API_KEY, MODEL_NAME, VISION_MODEL_NAME
+from app.config import GEMINI_API_KEY, MODEL_NAME, VISION_MODEL_NAME
 
 
 class LLMConfigError(RuntimeError):
@@ -20,13 +25,14 @@ class LLMConfigError(RuntimeError):
 
 
 @lru_cache(maxsize=1)
-def _client() -> anthropic.Anthropic:
-    if not ANTHROPIC_API_KEY:
+def _client() -> genai.Client:
+    if not GEMINI_API_KEY:
         raise LLMConfigError(
-            "ANTHROPIC_API_KEY is not set. Add it to a .env file or export it "
-            "before running the app (see .env.example)."
+            "GEMINI_API_KEY is not set. Add it to a .env file or export it "
+            "before running the app (see .env.example). Get a free key (no "
+            "card required) at https://aistudio.google.com/apikey"
         )
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    return genai.Client(api_key=GEMINI_API_KEY)
 
 
 def _extract_json(raw_text: str):
@@ -55,13 +61,16 @@ def _extract_json(raw_text: str):
 
 def call_json(system: str, user_text: str, max_tokens: int = 4096) -> dict | list:
     """Send a system+user prompt, expect a JSON object/array back."""
-    resp = _client().messages.create(
+    resp = _client().models.generate_content(
         model=MODEL_NAME,
-        max_tokens=max_tokens,
-        system=system,
-        messages=[{"role": "user", "content": user_text}],
+        contents=user_text,
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json",
+            max_output_tokens=max_tokens,
+        ),
     )
-    raw_text = "".join(block.text for block in resp.content if block.type == "text")
+    raw_text = resp.text or ""
     return _extract_json(raw_text)
 
 
@@ -73,25 +82,17 @@ def call_vision_json(
     max_tokens: int = 4096,
 ) -> dict | list:
     """Same as call_json but attaches a single image to the user turn."""
-    import base64
-
-    b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
-    resp = _client().messages.create(
+    resp = _client().models.generate_content(
         model=VISION_MODEL_NAME,
-        max_tokens=max_tokens,
-        system=system,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {"type": "base64", "media_type": media_type, "data": b64},
-                    },
-                    {"type": "text", "text": user_text},
-                ],
-            }
+        contents=[
+            types.Part.from_bytes(data=image_bytes, mime_type=media_type),
+            user_text,
         ],
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json",
+            max_output_tokens=max_tokens,
+        ),
     )
-    raw_text = "".join(block.text for block in resp.content if block.type == "text")
+    raw_text = resp.text or ""
     return _extract_json(raw_text)
