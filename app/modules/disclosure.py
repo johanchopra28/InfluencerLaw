@@ -37,7 +37,10 @@ Return ONLY a JSON object:
   "disclosure_quote": "the exact quote of any disclosure-like text found, or empty string",
   "risk": "HIGH" or "MEDIUM" or "LOW" or "NONE",
   "provision_index": <integer index of the most relevant numbered provision, or null if none apply>,
-  "explanation": "why this risk level was assigned",
+  "explanation": "why this risk level was assigned -- frame as a POTENTIALLY implicated \
+provision needing human legal review, never a definitive legal conclusion (do not say 'this \
+violates ASCI's guidelines'; say 'this potentially implicates ... and should be reviewed by \
+a lawyer before publication')",
   "suggested_fix": "exact suggested disclosure wording and placement to fix the issue, or \
 empty string if risk is NONE"
 }"""

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from app.modules.claimcheck import run_claimcheck
 from app.modules.comparative import run_comparative_check
+from app.modules.consumer_protection import run_consumer_protection_check
 from app.modules.contract_cross_check import run_contract_cross_check
 from app.modules.disclosure import run_disclosure_check
 from app.modules.music import run_music_check
@@ -63,6 +64,12 @@ def run_all_modules(campaign: CampaignInput) -> RunResult:
     music_issues, music_detail = run_music_check(campaign.audio_bytes, campaign.audio_filename)
     all_issues += music_issues
     details["music"] = music_detail
+
+    cp_issues, cp_detail = run_consumer_protection_check(
+        campaign.content_text, brief_text_for_comparative
+    )
+    all_issues += cp_issues
+    details["consumer_protection"] = cp_detail
 
     report = score_campaign(all_issues)
     return RunResult(report=report, details=details)

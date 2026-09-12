@@ -38,7 +38,10 @@ objects shaped like:
   "competitor_named": "name of competitor if named, else empty string",
   "risk": "HIGH" or "MEDIUM" or "LOW" or "NONE",
   "provision_index": <integer index of the most relevant numbered provision, or null>,
-  "explanation": "why this risk level was assigned",
+  "explanation": "why this risk level was assigned -- frame as a POTENTIALLY implicated \
+provision needing human legal review, never a definitive legal conclusion (do not say 'this \
+violates the ASCI Code'; say 'this potentially implicates ... and should be reviewed by a \
+lawyer before publication')",
   "suggested_fix": "rewritten, lower-risk version of this comparison, or empty string if risk is NONE"
 }"""
 

@@ -1,0 +1,10 @@
+[theme]
+# HYPECHECK brand palette (HYPECHECK_SPEC.md Section 5.1). primaryColor drives
+# buttons/links/focus rings -- deliberately Cobalt, never one of the reserved
+# status colors (Signal Coral / Caution Amber / Cleared Green), which are only
+# ever used for HIGH / MEDIUM / APPROVED badges (see app/config.py, app/theme.py).
+primaryColor = "#2C4A9E"
+backgroundColor = "#F5EFE4"
+secondaryBackgroundColor = "#EDE4D3"
+textColor = "#1B1812"
+font = "sans serif"

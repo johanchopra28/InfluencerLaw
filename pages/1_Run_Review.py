@@ -1,4 +1,4 @@
-"""InfluencerLaw - the actual review tool (upload -> pipeline -> dashboard).
+"""HYPECHECK - the actual review tool (upload -> pipeline -> dashboard).
 
 Run via: streamlit run app.py  (this page is reached from the sidebar, or the
 landing page's "Run a review" button).
@@ -9,31 +9,37 @@ import os
 
 import streamlit as st
 
-try:
-    from dotenv import load_dotenv
-
-    load_dotenv()
-except ImportError:
-    pass
-
-from app.config import AUDD_API_KEY, MODULE_NAMES, RISK_EMOJI
+from app.config import (
+    AUDD_API_KEY,
+    APP_NAME,
+    DISCLAIMER_TEXT,
+    LAWYER_CONSULT_NOTE,
+    MODULE_NAMES,
+    RISK_COLOR_HEX,
+    RISK_EMOJI,
+    RISK_HIGH,
+)
 from app.llm import LLMConfigError
 from app.orchestrator import CampaignInput, run_all_modules
 from app.parsing import content_image_to_text, ocr_content_image, parse_contract
 from app.pdfgen import generate_license_later_pdf
 from app.scoring import SCORING_RULE_TEXT
+from app.theme import inject_brand_css, risk_badge_html
 
-st.set_page_config(page_title="InfluencerLaw - Run Review", page_icon="⚖️", layout="wide")
+st.set_page_config(page_title=f"{APP_NAME} - Run Review", page_icon="⚖️", layout="wide")
+inject_brand_css()
 
-st.title("⚖️ InfluencerLaw")
+st.title(f"⚖️ {APP_NAME}")
 st.caption(
     "Influencer campaigns are reviewed for creativity, engagement and brand fit. "
-    "InfluencerLaw adds the missing layer: legal risk before the post goes live."
+    f"{APP_NAME} adds the missing layer: legal risk before the post goes live."
 )
 st.caption(
     "Jurisdiction: India (ASCI Code, ASCI Influencer Guidelines, CCPA Misleading "
-    "Advertisement Guidelines 2022)"
+    "Advertisement Guidelines 2022, Consumer Protection Act 2019, "
+    "Consumer Protection (E-Commerce) Rules 2020)"
 )
+st.warning(DISCLAIMER_TEXT, icon="⚖️")
 
 if "run_result" not in st.session_state:
     st.session_state.run_result = None
@@ -141,7 +147,7 @@ if submitted:
         audio_filename = audio_file.name if audio_file is not None else ""
 
     if not contract_text.strip():
-        st.warning("No contract text was extracted -- Module C (Contract Compliance) will have nothing to check against.")
+        st.warning("No contract text was extracted -- the Contract Compliance check will have nothing to check against.")
     if not content_text.strip():
         st.error("No content was provided (paste a caption/transcript or upload a screenshot).")
         st.stop()
@@ -160,8 +166,9 @@ if submitted:
 
     try:
         with st.spinner(
-            "Running the five legal-review modules (Disclosure, ClaimCheck, Contract "
-            "Compliance, Comparative Advertising, Music Licensing)..."
+            "Running the legal-review modules (Disclosure, ClaimCheck, Contract "
+            "Compliance, Consumer Protection & E-Commerce, Comparative Advertising, "
+            "Music Licensing)..."
         ):
             result = run_all_modules(campaign)
     except LLMConfigError as e:
@@ -183,6 +190,7 @@ if result is not None:
 
     st.divider()
     st.header("Dashboard")
+    st.warning(DISCLAIMER_TEXT, icon="⚖️")
 
     c1, c2, c3 = st.columns([1, 1, 2])
     with c1:
@@ -199,7 +207,7 @@ if result is not None:
         risk = report.category_risk.get(module_key, "NONE")
         with col:
             st.markdown(f"**{module_label}**")
-            st.markdown(f"### {_risk_badge(risk)}")
+            st.markdown(risk_badge_html(risk), unsafe_allow_html=True)
 
     music_detail = result.details.get("music", {})
     if music_detail.get("configured") is False:
@@ -231,14 +239,16 @@ if result is not None:
                 if issue.legal_text:
                     st.caption(issue.legal_text)
                 st.markdown("**Risk level**")
-                st.write(_risk_badge(issue.risk))
+                st.markdown(risk_badge_html(issue.risk), unsafe_allow_html=True)
+                if issue.risk == RISK_HIGH:
+                    st.markdown(f"**{LAWYER_CONSULT_NOTE}**")
                 st.markdown("**Suggested fix / next action**")
                 st.write(issue.suggested_fix or "(no fix suggested)")
 
                 if issue.extra.get("requires_license_later_doc"):
                     st.markdown("---")
                     st.markdown(
-                        "**This item can't be resolved by this tool** -- InfluencerLaw "
+                        f"**This item can't be resolved by this tool** -- {APP_NAME} "
                         "identifies and flags music; it does not broker or verify licenses. "
                         "Generate an acknowledgment document for your legal/brand team to "
                         "sign off once the track is actually cleared:"

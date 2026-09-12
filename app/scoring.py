@@ -21,7 +21,7 @@ SCORING_RULE_TEXT = (
     f"HIGH -{SCORE_DEDUCTIONS[RISK_HIGH]}, MEDIUM -{SCORE_DEDUCTIONS[RISK_MEDIUM]}, "
     f"LOW -{SCORE_DEDUCTIONS[RISK_LOW]}. Score floors at 0. "
     "Overall status is HIGH RISK if any HIGH issue exists, NEEDS REVISION if any "
-    "MEDIUM issue exists (and no HIGH), otherwise APPROVED."
+    "MEDIUM issue exists (and no HIGH), otherwise POST APPROVED."
 )
 
 
@@ -53,7 +53,7 @@ def score_campaign(issues: list[Issue]) -> CampaignReport:
     elif RISK_MEDIUM in risks:
         status, emoji = "NEEDS REVISION", "\U0001F7E1"
     else:
-        status, emoji = "APPROVED", "\U0001F7E2"
+        status, emoji = "POST APPROVED", "\U0001F7E2"
 
     category_risk = {}
     by_module: dict[str, list[str]] = {m: [] for m in MODULE_NAMES}

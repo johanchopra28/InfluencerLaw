@@ -91,7 +91,10 @@ Return ONLY a JSON array, one object per input claim, in the same order, shaped 
   "risk": "HIGH" or "MEDIUM" or "LOW" or "NONE",
   "provision_index": <integer index from the numbered list that best supports this verdict, \
 or null if none of the provided provisions are relevant to this specific claim>,
-  "explanation": "why this claim was flagged (or why it's fine)",
+  "explanation": "why this claim was flagged (or why it's fine) -- frame as a POTENTIALLY \
+implicated provision needing human legal review, never a definitive legal conclusion (do \
+not say 'this violates CCPA guidelines'; say 'this potentially implicates ... and should be \
+reviewed by a lawyer before publication')",
   "suggested_fix": "rewritten claim text, or empty string if risk is NONE",
   "fix_explanation": "one line: what changed and why, or empty string if risk is NONE"
 }

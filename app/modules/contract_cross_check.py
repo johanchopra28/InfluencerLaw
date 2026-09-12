@@ -125,7 +125,10 @@ Return ONLY a JSON array (empty if no violations found) of objects shaped like:
   "violating_statement": "the exact content statement that violates it (copy verbatim from input)",
   "risk": "HIGH" or "MEDIUM" or "LOW",
   "provision_index": <integer index of the most relevant numbered legal provision, or null if none apply>,
-  "explanation": "why this statement violates this restriction",
+  "explanation": "why this statement potentially violates this restriction -- frame as a \
+POTENTIALLY implicated restriction needing human legal/contract review, never a definitive \
+conclusion (do not say 'this violates the contract'; say 'this potentially conflicts with \
+... and should be reviewed by a lawyer before publication')",
   "suggested_fix": "how to rewrite or remove the offending statement to comply with the contract"
 }"""
 

@@ -22,6 +22,7 @@ SOURCE_LABELS = {
     "asci_code_core.md": "ASCI Code for Self-Regulation of Advertising Content in India",
     "asci_influencer_guidelines.md": "ASCI Guidelines for Influencer Advertising in Digital Media",
     "ccpa_misleading_ads_guidelines_2022.md": "CCPA Guidelines for Prevention of Misleading Advertisements and Endorsements, 2022",
+    "consumer_protection_act_2019_ecommerce_rules_2020.md": "Consumer Protection Act, 2019 / Consumer Protection (E-Commerce) Rules, 2020",
 }
 
 
@@ -103,6 +104,7 @@ def retrieve_for_module(module: str, extra_terms: str = "") -> list[tuple[LegalC
         "claims": "truthful claims substantiation misleading advertisement objectively ascertainable fact",
         "contract": "truthful claims substantiation misleading comparative advertising disclosure",
         "comparative": "comparative advertising competitor comparison substantiation denigrate",
+        "consumer_protection": "misleading advertisement surrogate advertising endorsement material connection disclosure e-commerce seller misrepresentation",
     }
     query = base_queries.get(module, module)
     if extra_terms:
