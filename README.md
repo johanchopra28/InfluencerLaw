@@ -1,5 +1,7 @@
 # InfluencerLaw — Pre-Publication Legal Review Engine (India)
 
+**Live demo: [influencerlaw.streamlit.app](https://influencerlaw.streamlit.app/)**
+
 Reviews an influencer marketing campaign for legal risk *before* it's published, by
 cross-referencing three inputs — the brand's contract with the influencer, the
 campaign brief, and the actual content (caption/transcript/screenshot) — against
