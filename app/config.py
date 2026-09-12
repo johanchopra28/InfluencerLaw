@@ -5,7 +5,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 LEGAL_SOURCES_DIR = ROOT_DIR / "data" / "legal_sources"
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-3.6-flash")
 VISION_MODEL_NAME = os.environ.get("INFLUENCERLAW_VISION_MODEL", MODEL_NAME)
 
 AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
