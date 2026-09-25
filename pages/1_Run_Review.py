@@ -51,66 +51,74 @@ def _risk_badge(risk: str) -> str:
     return f"{RISK_EMOJI.get(risk, '')} {risk}"
 
 
-with st.form("campaign_form"):
-    st.header("1. Campaign Brief")
-    col1, col2 = st.columns(2)
-    with col1:
-        brand = st.text_input("Brand", placeholder="e.g. GlowSkin Cosmetics")
-        product = st.text_input("Product", placeholder="e.g. GlowSkin Radiance Serum")
-        objective = st.text_area(
-            "Campaign objective",
-            placeholder="e.g. Drive awareness and trial of the new serum among 20-35 year old women",
-        )
-    with col2:
-        target_audience = st.text_area(
-            "Target audience",
-            placeholder="e.g. Women aged 20-35, urban India, skincare-conscious",
-        )
-        claims_to_communicate = st.text_area(
-            "Claims the brand wants communicated (include any supporting evidence you have)",
-            placeholder="e.g. 'Reduces visible pigmentation' - supported by a 4-week in-house consumer trial (n=50); 'Dermatologist tested'",
-            height=120,
-        )
-
-    st.header("2. Influencer Contract")
-    contract_file = st.file_uploader("Upload the influencer contract (PDF or DOCX)", type=["pdf", "docx"])
-
-    st.header("3. Content")
-    content_mode = st.radio(
-        "How are you providing the content?",
-        ["Paste caption / transcript text", "Upload a screenshot (Instagram post/reel image)"],
-        horizontal=True,
+st.header("1. Campaign Brief")
+col1, col2 = st.columns(2)
+with col1:
+    brand = st.text_input("Brand", placeholder="e.g. GlowSkin Cosmetics")
+    product = st.text_input("Product", placeholder="e.g. GlowSkin Radiance Serum")
+    objective = st.text_area(
+        "Campaign objective",
+        placeholder="e.g. Drive awareness and trial of the new serum among 20-35 year old women",
     )
-    content_text_input = ""
-    content_image = None
-    if content_mode.startswith("Paste"):
-        content_text_input = st.text_area(
-            "Caption / transcript text",
-            height=150,
-            placeholder="Paste the exact caption, transcript, or on-screen text of the post/reel here...",
-        )
-    else:
-        content_image = st.file_uploader("Upload screenshot", type=["png", "jpg", "jpeg"])
-        st.caption(
-            "Video upload isn't supported in this build -- if you have a reel/video, paste its "
-            "transcript above instead."
-        )
+with col2:
+    target_audience = st.text_area(
+        "Target audience",
+        placeholder="e.g. Women aged 20-35, urban India, skincare-conscious",
+    )
+    claims_to_communicate = st.text_area(
+        "Claims the brand wants communicated (include any supporting evidence you have)",
+        placeholder="e.g. 'Reduces visible pigmentation' - supported by a 4-week in-house consumer trial (n=50); 'Dermatologist tested'",
+        height=120,
+    )
 
-    st.header("4. Music Licensing Check (optional)")
-    audio_file = st.file_uploader(
-        "Upload the reel/video's AUDIO TRACK (mp3, wav, m4a, ogg) to check for identifiable "
-        "commercial music",
-        type=["mp3", "wav", "m4a", "ogg", "flac"],
+st.header("2. Influencer Contract")
+contract_file = st.file_uploader("Upload the influencer contract (PDF or DOCX)", type=["pdf", "docx"])
+
+st.header("3. Content")
+# NOTE: this radio (and everything that branches on it) must live outside
+# st.form -- form widgets only rerun the script on submit, so a conditional
+# file_uploader/text_area keyed off a radio inside a form never appears when
+# the user switches the radio. Keeping the whole input section un-formed
+# (plain widgets + st.button below) keeps the conditional reactive.
+content_mode = st.radio(
+    "How are you providing the content?",
+    ["Paste caption / transcript text", "Upload a screenshot (Instagram post/reel image)"],
+    horizontal=True,
+    key="content_mode",
+)
+content_text_input = ""
+content_image = None
+if content_mode.startswith("Paste"):
+    content_text_input = st.text_area(
+        "Caption / transcript text",
+        height=150,
+        placeholder="Paste the exact caption, transcript, or on-screen text of the post/reel here...",
+        key="content_text_input",
+    )
+else:
+    content_image = st.file_uploader(
+        "Upload screenshot", type=["png", "jpg", "jpeg"], key="content_image"
     )
     st.caption(
-        "Video files aren't accepted directly (no server-side audio extraction in this build) "
-        "-- export or record just the audio track and upload that. This uses AudD "
-        "(https://audd.io) to identify the track; it tells you WHAT SONG it is, not whether "
-        "you're licensed to use it."
-        + ("" if AUDD_API_KEY else " **AUDD_API_KEY is not set -- this check will be skipped.**")
+        "Video upload isn't supported in this build -- if you have a reel/video, paste its "
+        "transcript above instead."
     )
 
-    submitted = st.form_submit_button("Run Legal Review", type="primary")
+st.header("4. Music Licensing Check (optional)")
+audio_file = st.file_uploader(
+    "Upload the reel/video's AUDIO TRACK (mp3, wav, m4a, ogg) to check for identifiable "
+    "commercial music",
+    type=["mp3", "wav", "m4a", "ogg", "flac"],
+)
+st.caption(
+    "Video files aren't accepted directly (no server-side audio extraction in this build) "
+    "-- export or record just the audio track and upload that. This uses AudD "
+    "(https://audd.io) to identify the track; it tells you WHAT SONG it is, not whether "
+    "you're licensed to use it."
+    + ("" if AUDD_API_KEY else " **AUDD_API_KEY is not set -- this check will be skipped.**")
+)
+
+submitted = st.button("Run Legal Review", type="primary")
 
 if submitted:
     if not os.environ.get("GEMINI_API_KEY"):
