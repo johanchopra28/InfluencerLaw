@@ -29,6 +29,8 @@ from app.theme import inject_brand_css, risk_badge_html
 st.set_page_config(page_title=f"{APP_NAME} - Run Review", page_icon="⚖️", layout="wide")
 inject_brand_css()
 
+st.page_link("app.py", label="← Back to home")
+
 st.title(f"⚖️ {APP_NAME}")
 st.caption(
     "Influencer campaigns are reviewed for creativity, engagement and brand fit. "

@@ -8,3 +8,11 @@ backgroundColor = "#F5EFE4"
 secondaryBackgroundColor = "#EDE4D3"
 textColor = "#1B1812"
 font = "sans serif"
+
+[client]
+# Hides Streamlit's default multipage nav list in the sidebar (just "app" /
+# "Run Review" plain text links) -- it's unbranded chrome that clashes with
+# HYPECHECK_SPEC.md's design system. In-app navigation still works via the
+# landing page's "Run a review" button and the "Back to home" link on the
+# review page itself (st.page_link / st.switch_page), so nothing is stranded.
+showSidebarNavigation = false
