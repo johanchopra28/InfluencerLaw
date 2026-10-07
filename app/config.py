@@ -21,9 +21,9 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 # returning persistent 503 "high demand" errors as of 2026-10-07 -- confirmed via
 # direct API testing with a live key, not specific to any one key/account. The
 # "-lite" tier responded reliably (text and vision) during the same test, so that's
-# the default now. Override with INFLUENCERLAW_MODEL if/when the flash tier recovers.
-MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-flash-lite-latest")
-VISION_MODEL_NAME = os.environ.get("INFLUENCERLAW_VISION_MODEL", MODEL_NAME)
+# the default now. Override with HYPECHECK_MODEL if/when the flash tier recovers.
+MODEL_NAME = os.environ.get("HYPECHECK_MODEL", "gemini-flash-lite-latest")
+VISION_MODEL_NAME = os.environ.get("HYPECHECK_VISION_MODEL", MODEL_NAME)
 
 AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
 AUDD_ENDPOINT = "https://api.audd.io/"
