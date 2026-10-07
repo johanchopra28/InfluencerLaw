@@ -17,8 +17,8 @@ except ImportError:
     pass
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-3.6-flash")
-VISION_MODEL_NAME = os.environ.get("INFLUENCERLAW_VISION_MODEL", MODEL_NAME)
+MODEL_NAME = os.environ.get("HYPECHECK_MODEL", "gemini-3.6-flash")
+VISION_MODEL_NAME = os.environ.get("HYPECHECK_VISION_MODEL", MODEL_NAME)
 
 AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
 AUDD_ENDPOINT = "https://api.audd.io/"
