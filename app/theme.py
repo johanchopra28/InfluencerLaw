@@ -21,6 +21,7 @@ _CSS = f"""
 h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
     font-family: 'Fraunces', Georgia, serif !important;
     font-weight: 700 !important;
+    letter-spacing: -0.01em;
 }}
 html, body, [class*="css"], .stMarkdown, .stTextInput, .stTextArea, .stButton {{
     font-family: 'IBM Plex Sans', system-ui, sans-serif;
@@ -36,7 +37,71 @@ a {{ color: {COLOR_COBALT} !important; }}
    class regardless of content. */
 [data-testid="stAlert"] {{
     border-left: 4px solid {COLOR_INK};
-    border-radius: 4px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(27, 24, 18, 0.06);
+}}
+
+/* Primary buttons: a touch of depth + a gentle lift on hover, instead of the
+   flat default. Secondary/link buttons get a matching but quieter hover. */
+.stButton > button[kind="primary"], .stButton > button[kind="primaryFormSubmit"] {{
+    box-shadow: 0 2px 6px rgba(44, 74, 158, 0.25);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    border: none;
+}}
+.stButton > button[kind="primary"]:hover, .stButton > button[kind="primaryFormSubmit"]:hover {{
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(44, 74, 158, 0.32);
+}}
+.stButton > button[kind="secondary"], .stLinkButton > a {{
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}}
+.stButton > button[kind="secondary"]:hover, .stLinkButton > a:hover {{
+    transform: translateY(-1px);
+    border-color: {COLOR_COBALT} !important;
+    box-shadow: 0 2px 6px rgba(27, 24, 18, 0.1);
+}}
+
+/* Expanders (used for issue cards, scoring rule, sample flags): give them
+   the same card depth as everything else instead of a flat outline. */
+[data-testid="stExpander"] {{
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(27, 24, 18, 0.07);
+}}
+
+.hc-card {{
+    background: #FBF8F1;
+    border: 1px solid #E3D9C3;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}}
+.hc-card:hover {{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(27, 24, 18, 0.1);
+}}
+
+/* Category-breakdown badge cards, used on both the landing page's sample
+   dashboard and the real Run Review dashboard. */
+.cat-card {{
+    background: #FBF8F1; border: 1px solid #E3D9C3; border-radius: 8px;
+    padding: 12px 14px; text-align: center; height: 100%;
+    box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}}
+.cat-card:hover {{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(27, 24, 18, 0.1);
+}}
+.cat-card .cat-label {{
+    font-size: 0.82rem; font-weight: 600; color: {COLOR_INK};
+    display: block; margin-bottom: 8px; min-height: 2.2em;
+}}
+
+/* Thin brand-gradient rule used in place of plain st.divider(). */
+.hero-rule {{
+    height: 3px; width: 64px; border-radius: 999px;
+    background: linear-gradient(90deg, {COLOR_COBALT}, #D9A125);
+    margin: 28px 0 32px;
 }}
 </style>
 """
@@ -48,9 +113,26 @@ def inject_brand_css() -> None:
 
 def risk_border_css(risk: str) -> str:
     """Inline style string for a left-border accent in the exact brand hex for
-    this severity, to wrap around an issue card's own markdown block."""
+    this severity. NOTE: only safe to use on a single st.markdown() call's own
+    HTML -- an opening <div> in one st.markdown() and its closing </div> in a
+    later, separate st.markdown() call do NOT nest (each call is its own
+    isolated DOM fragment in Streamlit), so this cannot wrap multiple widgets.
+    To wrap real widgets (st.code, st.write, st.columns, ...) in a colored
+    border, use risk_container_style() + st.container(key=...) instead."""
     color = RISK_COLOR_HEX.get(risk, RISK_COLOR_HEX["LOW"])
     return f"border-left:4px solid {color};padding-left:12px;"
+
+
+def risk_container_style(key: str, risk: str) -> str:
+    """A <style> block that gives an st.container(key=key) a left-border
+    accent in this severity's brand color, via the stable `st-key-<key>` CSS
+    class Streamlit attaches to keyed containers. Render this markdown BEFORE
+    opening the `with st.container(border=True, key=key):` block it targets."""
+    color = RISK_COLOR_HEX.get(risk, RISK_COLOR_HEX["LOW"])
+    return (
+        f"<style>.st-key-{key} {{ border-left: 4px solid {color} !important; "
+        f"border-radius: 8px; }}</style>"
+    )
 
 
 def risk_badge_html(risk: str, label: str | None = None) -> str:

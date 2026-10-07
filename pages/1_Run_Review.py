@@ -24,7 +24,7 @@ from app.orchestrator import CampaignInput, run_all_modules
 from app.parsing import content_image_to_text, ocr_content_image, parse_contract
 from app.pdfgen import generate_license_later_pdf
 from app.scoring import SCORING_RULE_TEXT
-from app.theme import inject_brand_css, risk_badge_html
+from app.theme import inject_brand_css, risk_badge_html, risk_container_style
 
 st.set_page_config(page_title=f"{APP_NAME} - Run Review", page_icon="⚖️", layout="wide")
 inject_brand_css()
@@ -198,7 +198,7 @@ if result is not None:
     campaign = st.session_state.campaign
     report = result.report
 
-    st.divider()
+    st.markdown('<div class="hero-rule"></div>', unsafe_allow_html=True)
     st.header("Dashboard")
     st.warning(DISCLAIMER_TEXT, icon="⚖️")
 
@@ -216,8 +216,11 @@ if result is not None:
     for col, (module_key, module_label) in zip(cat_cols, MODULE_NAMES.items()):
         risk = report.category_risk.get(module_key, "NONE")
         with col:
-            st.markdown(f"**{module_label}**")
-            st.markdown(risk_badge_html(risk), unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="cat-card"><span class="cat-label">{module_label}</span>'
+                f"{risk_badge_html(risk)}</div>",
+                unsafe_allow_html=True,
+            )
 
     music_detail = result.details.get("music", {})
     if music_detail.get("configured") is False:
@@ -237,23 +240,26 @@ if result is not None:
         for i, issue in enumerate(report.issues):
             module_label = MODULE_NAMES.get(issue.module, issue.module)
             with st.expander(f"{_risk_badge(issue.risk)} [{module_label}] {issue.title}"):
-                st.markdown("**Detected issue**")
-                st.write(issue.title)
-                st.markdown("**Evidence** (exact quote from the content)")
-                st.code(issue.evidence or "(none)", language=None)
-                if issue.extra.get("contract_restriction"):
-                    st.markdown("**Contract restriction**")
-                    st.code(issue.extra["contract_restriction"], language=None)
-                st.markdown("**Legal basis** (retrieved provision)")
-                st.write(f"*{issue.legal_citation}*")
-                if issue.legal_text:
-                    st.caption(issue.legal_text)
-                st.markdown("**Risk level**")
-                st.markdown(risk_badge_html(issue.risk), unsafe_allow_html=True)
-                if issue.risk == RISK_HIGH:
-                    st.markdown(f"**{LAWYER_CONSULT_NOTE}**")
-                st.markdown("**Suggested fix / next action**")
-                st.write(issue.suggested_fix or "(no fix suggested)")
+                issue_key = f"issue-{i}"
+                st.markdown(risk_container_style(issue_key, issue.risk), unsafe_allow_html=True)
+                with st.container(border=True, key=issue_key):
+                    st.markdown("**Detected issue**")
+                    st.write(issue.title)
+                    st.markdown("**Evidence** (exact quote from the content)")
+                    st.code(issue.evidence or "(none)", language=None)
+                    if issue.extra.get("contract_restriction"):
+                        st.markdown("**Contract restriction**")
+                        st.code(issue.extra["contract_restriction"], language=None)
+                    st.markdown("**Legal basis** (retrieved provision)")
+                    st.write(f"*{issue.legal_citation}*")
+                    if issue.legal_text:
+                        st.caption(issue.legal_text)
+                    st.markdown("**Risk level**")
+                    st.markdown(risk_badge_html(issue.risk), unsafe_allow_html=True)
+                    if issue.risk == RISK_HIGH:
+                        st.markdown(f"**{LAWYER_CONSULT_NOTE}**")
+                    st.markdown("**Suggested fix / next action**")
+                    st.write(issue.suggested_fix or "(no fix suggested)")
 
                 if issue.extra.get("requires_license_later_doc"):
                     st.markdown("---")
@@ -293,19 +299,22 @@ if result is not None:
     if not rewrites:
         st.info("No rewrites to show -- no flagged claim/statement had a suggested rewrite.")
     else:
-        for issue in rewrites:
+        for ri, issue in enumerate(rewrites):
             module_label = MODULE_NAMES.get(issue.module, issue.module)
-            st.markdown(f"**[{module_label}] {_risk_badge(issue.risk)}**")
-            colo, coln = st.columns(2)
-            with colo:
-                st.caption("Original")
-                st.write(issue.original_text)
-            with coln:
-                st.caption("Fixed")
-                st.write(issue.rewritten_text)
-            if issue.extra.get("fix_explanation"):
-                st.caption(f"Why: {issue.extra['fix_explanation']}")
-            st.divider()
+            rewrite_key = f"rewrite-{ri}"
+            st.markdown(risk_container_style(rewrite_key, issue.risk), unsafe_allow_html=True)
+            with st.container(border=True, key=rewrite_key):
+                st.markdown(f"**[{module_label}] {_risk_badge(issue.risk)}**")
+                colo, coln = st.columns(2)
+                with colo:
+                    st.caption("Original")
+                    st.write(issue.original_text)
+                with coln:
+                    st.caption("Fixed")
+                    st.write(issue.rewritten_text)
+                if issue.extra.get("fix_explanation"):
+                    st.caption(f"Why: {issue.extra['fix_explanation']}")
+            st.write("")
 
     with st.expander("Module detail data (debug / transparency)"):
         st.json(result.details)

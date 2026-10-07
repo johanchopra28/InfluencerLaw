@@ -9,7 +9,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT
-from app.theme import inject_brand_css, risk_badge_html
+from app.theme import inject_brand_css, risk_badge_html, risk_container_style
 
 st.set_page_config(
     page_title=f"{APP_NAME} - Pre-Publication Legal Review",
@@ -23,20 +23,37 @@ st.markdown(
     <style>
     .hero-badge {
         display: inline-block; background: #E4E9F5; color: #2C4A9E;
-        border-radius: 999px; padding: 4px 14px; font-size: 0.85rem;
-        font-weight: 600; margin-bottom: 14px;
+        border-radius: 999px; padding: 5px 16px; font-size: 0.85rem;
+        font-weight: 600; margin-bottom: 18px;
+        box-shadow: 0 1px 2px rgba(44, 74, 158, 0.15);
     }
     .step-card {
-        background: #FBF8F1; border: 1px solid #E3D9C3; border-radius: 8px;
-        padding: 18px; height: 100%; color: #1B1812;
+        background: #FBF8F1; border: 1px solid #E3D9C3; border-radius: 10px;
+        padding: 22px 20px; height: 100%; color: #1B1812;
+        border-top: 3px solid #2C4A9E;
+        box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .step-card b { color: #1B1812; }
+    .step-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(27, 24, 18, 0.1);
+    }
+    .step-card .step-icon { font-size: 1.6rem; }
+    .step-card b { color: #1B1812; display: block; margin: 10px 0 6px; font-size: 1.05rem; }
     .trail-step {
-        border-left: 3px solid #2C4A9E; padding-left: 12px; margin-bottom: 10px;
+        background: #FBF8F1; border: 1px solid #E3D9C3; border-left: 3px solid #2C4A9E;
+        border-radius: 8px; padding: 14px 16px; height: 100%;
+        box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .trail-step:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(27, 24, 18, 0.1);
     }
     .scope-card {
-        background: #FBF1DC; border: 1px solid #D9A125; border-radius: 8px;
-        padding: 16px 20px; color: #4A3C0E;
+        background: #FBF1DC; border: 1px solid #D9A125; border-radius: 10px;
+        padding: 20px 22px; color: #4A3C0E;
+        box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
     }
     .scope-card b { color: #332800; }
     </style>
@@ -65,7 +82,7 @@ with col_cta1:
 with col_cta2:
     st.link_button("Read the ASCI Code ↗", "https://www.ascionline.in/the-asci-code/", use_container_width=True)
 
-st.divider()
+st.markdown('<div class="hero-rule"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------- How it works
 st.header("How it works")
@@ -74,7 +91,7 @@ st.write("Three inputs in → cross-referenced against real legal text → a ris
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown(
-        '<div class="step-card">📄<br><b>1. Contract</b><br>'
+        '<div class="step-card"><span class="step-icon">📄</span><b>1. Contract</b>'
         "Upload the influencer agreement (PDF/DOCX). We extract every content "
         "restriction — no medical claims, no competitor mentions, disclosure "
         "obligations, exclusivity terms.</div>",
@@ -82,14 +99,14 @@ with c1:
     )
 with c2:
     st.markdown(
-        '<div class="step-card">🧾<br><b>2. Campaign brief</b><br>'
+        '<div class="step-card"><span class="step-icon">🧾</span><b>2. Campaign brief</b>'
         "Brand, product, objective, audience, and the claims the brand wants "
         "communicated — plus whatever evidence actually backs them.</div>",
         unsafe_allow_html=True,
     )
 with c3:
     st.markdown(
-        '<div class="step-card">📱<br><b>3. The actual content</b><br>'
+        '<div class="step-card"><span class="step-icon">📱</span><b>3. The actual content</b>'
         "Caption, transcript, or a screenshot of the post/reel — the words that "
         "are actually about to go live.</div>",
         unsafe_allow_html=True,
@@ -119,7 +136,7 @@ st.caption(
     "of fabricating a citation."
 )
 
-st.divider()
+st.markdown('<div class="hero-rule"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------- Sample dashboard
 st.header("What you get: the compliance dashboard")
@@ -150,26 +167,31 @@ sample_categories = [
 cat_cols = st.columns(len(sample_categories))
 for col, (label, risk) in zip(cat_cols, sample_categories):
     with col:
-        st.markdown(f"**{label}**")
-        st.markdown(risk_badge_html(risk), unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="cat-card"><span class="cat-label">{label}</span>'
+            f"{risk_badge_html(risk)}</div>",
+            unsafe_allow_html=True,
+        )
 
 with st.expander("[ClaimCheck] Unsubstantiated claim: “Clinically proven to remove pigmentation in 7 days” — sample"):
-    st.markdown("**Evidence**")
-    st.code("Clinically proven to remove pigmentation in 7 days", language=None)
-    st.markdown("**Legal basis**")
-    st.write("*ASCI Code — Chapter I — Truthful & Honest Representation (1.1)*")
-    st.caption(
-        "Advertisements must be truthful. All descriptions, claims and comparisons, which "
-        "relate to matters of objectively ascertainable fact, should be capable of "
-        "substantiation."
-    )
-    st.markdown("**Risk level**")
-    st.markdown(risk_badge_html("HIGH"), unsafe_allow_html=True)
-    st.markdown("**⚠ Consult a lawyer before publishing this.**")
-    st.markdown("**Suggested fix**")
-    st.write("“Visibly reduces the look of pigmentation with regular use” — softened from a medical/efficacy claim to a cosmetic-effect claim, since the brief has no clinical trial evidence on file.")
+    st.markdown(risk_container_style("sample-issue", "HIGH"), unsafe_allow_html=True)
+    with st.container(border=True, key="sample-issue"):
+        st.markdown("**Evidence**")
+        st.code("Clinically proven to remove pigmentation in 7 days", language=None)
+        st.markdown("**Legal basis**")
+        st.write("*ASCI Code — Chapter I — Truthful & Honest Representation (1.1)*")
+        st.caption(
+            "Advertisements must be truthful. All descriptions, claims and comparisons, which "
+            "relate to matters of objectively ascertainable fact, should be capable of "
+            "substantiation."
+        )
+        st.markdown("**Risk level**")
+        st.markdown(risk_badge_html("HIGH"), unsafe_allow_html=True)
+        st.markdown("**⚠ Consult a lawyer before publishing this.**")
+        st.markdown("**Suggested fix**")
+        st.write("“Visibly reduces the look of pigmentation with regular use” — softened from a medical/efficacy claim to a cosmetic-effect claim, since the brief has no clinical trial evidence on file.")
 
-st.divider()
+st.markdown('<div class="hero-rule"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------- Scope honesty
 st.header("What this tool honestly does — and doesn't — do")
