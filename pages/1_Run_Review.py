@@ -33,7 +33,7 @@ st.page_link("app.py", label="← Back to home")
 
 st.title(f"⚖️ {APP_NAME}")
 st.caption(
-    "Influencer campaigns are reviewed for creativity, engagement and brand fit. "
+    "Every influencer post gets checked for creativity, brand fit, maybe a PR read. "
     f"{APP_NAME} adds the missing layer: legal risk before the post goes live."
 )
 st.caption(
@@ -102,7 +102,7 @@ else:
         "Upload screenshot", type=["png", "jpg", "jpeg"], key="content_image"
     )
     st.caption(
-        "Video upload isn't supported in this build -- if you have a reel/video, paste its "
+        "Video upload isn't supported in this build. If you have a reel or video, paste its "
         "transcript above instead."
     )
 
@@ -113,11 +113,11 @@ audio_file = st.file_uploader(
     type=["mp3", "wav", "m4a", "ogg", "flac"],
 )
 st.caption(
-    "Video files aren't accepted directly (no server-side audio extraction in this build) "
-    "-- export or record just the audio track and upload that. This uses AudD "
-    "(https://audd.io) to identify the track; it tells you WHAT SONG it is, not whether "
+    "Video files aren't accepted directly, since this build has no server-side audio "
+    "extraction. Export or record just the audio track and upload that. This uses AudD "
+    "(https://audd.io) to identify the track; it tells you what song it is, not whether "
     "you're licensed to use it."
-    + ("" if AUDD_API_KEY else " **AUDD_API_KEY is not set -- this check will be skipped.**")
+    + ("" if AUDD_API_KEY else " **AUDD_API_KEY is not set, so this check will be skipped.**")
 )
 
 submitted = st.button("Run Legal Review", type="primary")
@@ -157,7 +157,7 @@ if submitted:
         audio_filename = audio_file.name if audio_file is not None else ""
 
     if not contract_text.strip():
-        st.warning("No contract text was extracted -- the Contract Compliance check will have nothing to check against.")
+        st.warning("No contract text was extracted. The Contract Compliance check will have nothing to check against.")
     if not content_text.strip():
         st.error("No content was provided (paste a caption/transcript or upload a screenshot).")
         st.stop()
@@ -207,8 +207,8 @@ if result is not None:
         unsafe_allow_html=True,
     )
     st.write("")
-    with st.expander("Scoring rule (not a black box)"):
-        st.write(SCORING_RULE_TEXT)
+    st.markdown("**Scoring rule, in full:**")
+    st.caption(SCORING_RULE_TEXT)
 
     st.subheader("Category breakdown")
     cat_cols = st.columns(len(MODULE_NAMES))
@@ -238,7 +238,7 @@ if result is not None:
     else:
         for i, issue in enumerate(report.issues):
             module_label = MODULE_NAMES.get(issue.module, issue.module)
-            with st.expander(f"{_risk_badge(issue.risk)} [{module_label}] {issue.title}"):
+            with st.expander(f"{_risk_badge(issue.risk)} [{module_label}] {issue.title}", expanded=True):
                 issue_key = f"issue-{i}"
                 st.markdown(risk_container_style(issue_key, issue.risk), unsafe_allow_html=True)
                 with st.container(border=True, key=issue_key):
@@ -263,9 +263,9 @@ if result is not None:
                 if issue.extra.get("requires_license_later_doc"):
                     st.markdown("---")
                     st.markdown(
-                        f"**This item can't be resolved by this tool** -- {APP_NAME} "
+                        f"**This item can't be resolved by this tool.** {APP_NAME} "
                         "identifies and flags music; it does not broker or verify licenses. "
-                        "Generate an acknowledgment document for your legal/brand team to "
+                        "Generate an acknowledgment document for your legal and brand team to "
                         "sign off once the track is actually cleared:"
                     )
                     pdf_bytes = generate_license_later_pdf(
@@ -296,7 +296,7 @@ if result is not None:
     st.subheader("Fix Campaign view")
     rewrites = [i for i in report.issues if i.rewritten_text]
     if not rewrites:
-        st.info("No rewrites to show -- no flagged claim/statement had a suggested rewrite.")
+        st.info("No rewrites to show. No flagged claim or statement had a suggested rewrite.")
     else:
         for ri, issue in enumerate(rewrites):
             module_label = MODULE_NAMES.get(issue.module, issue.module)
