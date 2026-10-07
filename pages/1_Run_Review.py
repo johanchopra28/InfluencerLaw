@@ -24,7 +24,7 @@ from app.orchestrator import CampaignInput, run_all_modules
 from app.parsing import content_image_to_text, ocr_content_image, parse_contract
 from app.pdfgen import generate_license_later_pdf
 from app.scoring import SCORING_RULE_TEXT
-from app.theme import inject_brand_css, risk_badge_html, risk_container_style
+from app.theme import inject_brand_css, risk_badge_html, risk_container_style, status_summary_html
 
 st.set_page_config(page_title=f"{APP_NAME} - Run Review", page_icon="⚖️", layout="wide")
 inject_brand_css()
@@ -202,14 +202,13 @@ if result is not None:
     st.header("Dashboard")
     st.warning(DISCLAIMER_TEXT, icon="⚖️")
 
-    c1, c2, c3 = st.columns([1, 1, 2])
-    with c1:
-        st.metric("Overall status", f"{report.status_emoji} {report.status}")
-    with c2:
-        st.metric("Compliance score", f"{report.score} / 100")
-    with c3:
-        with st.expander("Scoring rule (not a black box)"):
-            st.write(SCORING_RULE_TEXT)
+    st.markdown(
+        status_summary_html(report.status, report.status_emoji, report.score),
+        unsafe_allow_html=True,
+    )
+    st.write("")
+    with st.expander("Scoring rule (not a black box)"):
+        st.write(SCORING_RULE_TEXT)
 
     st.subheader("Category breakdown")
     cat_cols = st.columns(len(MODULE_NAMES))

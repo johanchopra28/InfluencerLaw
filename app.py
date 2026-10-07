@@ -9,7 +9,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT
-from app.theme import inject_brand_css, risk_badge_html, risk_container_style
+from app.theme import inject_brand_css, risk_badge_html, risk_container_style, status_summary_html
 
 st.set_page_config(
     page_title=f"{APP_NAME} - Pre-Publication Legal Review",
@@ -143,18 +143,14 @@ st.header("What you get: the compliance dashboard")
 st.caption("A real shape of the output — run your own campaign above to generate this from scratch.")
 st.warning(DISCLAIMER_TEXT, icon="⚖️")
 
-d1, d2, d3 = st.columns([1, 1, 2])
-with d1:
-    st.metric("Overall status", "🟡 NEEDS REVISION")
-with d2:
-    st.metric("Compliance score", "62 / 100")
-with d3:
-    with st.expander("Scoring rule (not a black box)"):
-        st.write(
-            "Start at 100. Subtract per flagged issue: HIGH -25, MEDIUM -10, LOW -3. "
-            "Floors at 0. Status is HIGH RISK if any HIGH issue exists, NEEDS REVISION if any "
-            "MEDIUM issue exists, otherwise POST APPROVED."
-        )
+st.markdown(status_summary_html("NEEDS REVISION", "🟡", 62), unsafe_allow_html=True)
+st.write("")
+with st.expander("Scoring rule (not a black box)"):
+    st.write(
+        "Start at 100. Subtract per flagged issue: HIGH -25, MEDIUM -10, LOW -3. "
+        "Floors at 0. Status is HIGH RISK if any HIGH issue exists, NEEDS REVISION if any "
+        "MEDIUM issue exists, otherwise POST APPROVED."
+    )
 
 sample_categories = [
     ("Advertising Disclosure", "LOW"),

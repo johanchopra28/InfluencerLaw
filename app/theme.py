@@ -12,7 +12,25 @@ from __future__ import annotations
 
 import streamlit as st
 
-from app.config import COLOR_COBALT, COLOR_INK, RISK_COLOR_HEX, RISK_EMOJI
+from app.config import (
+    COLOR_COBALT,
+    COLOR_INK,
+    RISK_COLOR_HEX,
+    RISK_EMOJI,
+    RISK_HIGH,
+    RISK_LOW,
+    RISK_MEDIUM,
+)
+
+# Overall-status strings (app/scoring.py) mapped to the risk severity whose
+# color they should borrow -- so "HIGH RISK" reads the same red as a HIGH
+# issue, etc.
+_STATUS_RISK = {
+    "HIGH RISK": RISK_HIGH,
+    "NEEDS REVISION": RISK_MEDIUM,
+    "POST APPROVED": RISK_LOW,
+    "APPROVED": RISK_LOW,
+}
 
 _CSS = f"""
 <style>
@@ -103,6 +121,28 @@ a {{ color: {COLOR_COBALT} !important; }}
     background: linear-gradient(90deg, {COLOR_COBALT}, #D9A125);
     margin: 28px 0 32px;
 }}
+
+/* Headline status+score summary (replaces two cramped st.metric() boxes,
+   which truncate long status text like "NEEDS REVISION" in a narrow
+   column). One wide card, natural-width HTML instead of a fixed-size
+   widget, so nothing ever clips. */
+.summary-card {{
+    background: #FBF8F1; border: 1px solid #E3D9C3; border-radius: 10px;
+    padding: 20px 26px; box-shadow: 0 1px 3px rgba(27, 24, 18, 0.06);
+    display: flex; align-items: center; gap: 40px; flex-wrap: wrap;
+}}
+.summary-eyebrow {{
+    font-size: 0.75rem; font-weight: 600; color: #8A8068;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+}}
+.summary-score {{
+    font-family: 'Fraunces', Georgia, serif; font-weight: 700;
+    font-size: 2.1rem; color: {COLOR_INK}; line-height: 1;
+}}
+.summary-score span {{
+    font-family: 'IBM Plex Sans', system-ui, sans-serif; font-weight: 500;
+    font-size: 1.05rem; color: #8A8068;
+}}
 </style>
 """
 
@@ -144,4 +184,25 @@ def risk_badge_html(risk: str, label: str | None = None) -> str:
         f'<span style="background:{color};color:#FBF7EF;padding:2px 10px;'
         f'border-radius:4px;font-weight:600;font-size:0.85em;">'
         f"{RISK_EMOJI.get(risk, '')} {text}</span>"
+    )
+
+
+def status_summary_html(status: str, status_emoji: str, score: int) -> str:
+    """The headline overall-status + compliance-score card. Natural-width
+    HTML (not st.metric, which silently truncates a long status string like
+    "NEEDS REVISION" in a narrow column) -- always renders in full."""
+    risk = _STATUS_RISK.get(status.upper(), RISK_MEDIUM)
+    color = RISK_COLOR_HEX.get(risk, RISK_COLOR_HEX["LOW"])
+    status_pill = (
+        f'<span style="background:{color};color:#FBF7EF;padding:6px 18px;'
+        f'border-radius:6px;font-weight:700;font-size:1.3rem;display:inline-block;'
+        f'white-space:nowrap;">{status_emoji} {status}</span>'
+    )
+    return (
+        '<div class="summary-card">'
+        '<div><div class="summary-eyebrow">Overall status</div>'
+        f"{status_pill}</div>"
+        '<div><div class="summary-eyebrow">Compliance score</div>'
+        f'<div class="summary-score">{score} <span>/ 100</span></div></div>'
+        "</div>"
     )
