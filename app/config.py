@@ -17,7 +17,12 @@ except ImportError:
     pass
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-3.6-flash")
+# gemini-3.6-flash (and its siblings gemini-3.8-flash / gemini-flash-latest) were
+# returning persistent 503 "high demand" errors as of 2026-10-07 -- confirmed via
+# direct API testing with a live key, not specific to any one key/account. The
+# "-lite" tier responded reliably (text and vision) during the same test, so that's
+# the default now. Override with INFLUENCERLAW_MODEL if/when the flash tier recovers.
+MODEL_NAME = os.environ.get("INFLUENCERLAW_MODEL", "gemini-flash-lite-latest")
 VISION_MODEL_NAME = os.environ.get("INFLUENCERLAW_VISION_MODEL", MODEL_NAME)
 
 AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
