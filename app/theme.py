@@ -177,12 +177,15 @@ def risk_container_style(key: str, risk: str) -> str:
 
 def risk_badge_html(risk: str, label: str | None = None) -> str:
     """A status pill in the exact brand hex for this severity, with the
-    plain-language label inside it -- never color alone conveys risk."""
+    plain-language label inside it -- never color alone conveys risk. Fixed
+    min-width + centered text so LOW/MEDIUM/HIGH badges all render the same
+    size instead of auto-sizing to their different text lengths."""
     color = RISK_COLOR_HEX.get(risk, RISK_COLOR_HEX["LOW"])
     text = label if label is not None else risk
     return (
         f'<span style="background:{color};color:#FBF7EF;padding:2px 10px;'
-        f'border-radius:4px;font-weight:600;font-size:0.85em;">'
+        f'border-radius:4px;font-weight:600;font-size:0.85em;'
+        f'display:inline-block;min-width:88px;text-align:center;">'
         f"{RISK_EMOJI.get(risk, '')} {text}</span>"
     )
 
