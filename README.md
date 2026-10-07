@@ -1,9 +1,12 @@
 # HYPECHECK — Pre-Publication Legal Review Engine (India)
 
 **Live demo: [influencerlaw.streamlit.app](https://influencerlaw.streamlit.app/)**
-*(the repo and live URL still say "influencerlaw" — that's the original project name,
-kept as-is so existing shared links don't break; the product itself is now branded
-HYPECHECK throughout the app, per HYPECHECK_SPEC.md.)*
+*(the GitHub repo and the live URL above still say "InfluencerLaw" — that's the
+original project name. It can't be renamed from here: the live URL is a Streamlit
+Community Cloud subdomain tied to that deployment, and renaming the GitHub repo
+itself requires admin rights on it. Renaming either would break the existing
+shared links. Everywhere else — the local folder, env var names, and the app
+itself — is now HYPECHECK throughout, per HYPECHECK_SPEC.md.)*
 
 HYPECHECK is a screening tool, not legal advice. It reviews an influencer marketing
 campaign for legal risk *before* it's published, by cross-referencing three inputs —
