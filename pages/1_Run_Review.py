@@ -102,7 +102,7 @@ else:
         "Upload screenshot", type=["png", "jpg", "jpeg"], key="content_image"
     )
     st.caption(
-        "Video upload isn't supported in this build. If you have a reel or video, paste its "
+        "Video upload isn't supported yet. If you have a reel or video, paste its "
         "transcript above instead."
     )
 
@@ -113,8 +113,8 @@ audio_file = st.file_uploader(
     type=["mp3", "wav", "m4a", "ogg", "flac"],
 )
 st.caption(
-    "Video files aren't accepted directly, since this build has no server-side audio "
-    "extraction. Export or record just the audio track and upload that. This uses AudD "
+    "Video files aren't accepted directly. Export or record just the audio track and "
+    "upload that instead. This uses AudD "
     "(https://audd.io) to identify the track; it tells you what song it is, not whether "
     "you're licensed to use it."
     + ("" if AUDD_API_KEY else " **AUDD_API_KEY is not set, so this check will be skipped.**")
