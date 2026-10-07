@@ -24,12 +24,18 @@ from app.orchestrator import CampaignInput, run_all_modules
 from app.parsing import content_image_to_text, ocr_content_image, parse_contract
 from app.pdfgen import generate_license_later_pdf
 from app.scoring import SCORING_RULE_TEXT
-from app.theme import inject_brand_css, risk_badge_html, risk_container_style, status_summary_html
+from app.theme import (
+    inject_brand_css,
+    render_tab_strip,
+    risk_badge_html,
+    risk_container_style,
+    status_summary_html,
+)
 
 st.set_page_config(page_title=f"{APP_NAME} - Run Review", page_icon="⚖️", layout="wide")
 inject_brand_css()
 
-st.page_link("app.py", label="← Back to home")
+render_tab_strip("pages/1_Run_Review.py")
 
 st.title(f"⚖️ {APP_NAME}")
 st.caption(

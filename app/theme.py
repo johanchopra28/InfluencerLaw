@@ -10,6 +10,8 @@ spec (that's a from-scratch Next.js build, out of scope here).
 """
 from __future__ import annotations
 
+import re
+
 import streamlit as st
 
 from app.config import (
@@ -185,6 +187,53 @@ def risk_badge_html(risk: str, label: str | None = None) -> str:
         f'border-radius:4px;font-weight:600;font-size:0.85em;">'
         f"{RISK_EMOJI.get(risk, '')} {text}</span>"
     )
+
+
+_NAV_TABS = [
+    ("app.py", "🏠 Home"),
+    ("pages/1_Run_Review.py", "🚀 Run a Review"),
+]
+
+
+def _slug(path: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9]+", "-", path).strip("-").lower()
+
+
+def render_tab_strip(active_path: str) -> None:
+    """The horizontal 'head band' tab strip replacing Streamlit's default
+    sidebar page list (hidden via .streamlit/config.toml showSidebarNavigation).
+    Pass the current page's own file path (e.g. "app.py") as active_path so
+    that tab gets the underline + bold active treatment; the other tab(s)
+    render as quiet, clickable links -- a real page navigation, not a
+    same-page st.tabs() widget, since Home and Run Review are separate pages.
+    """
+    style_rules = [
+        '.st-key-tabstrip { display: flex; gap: 4px; '
+        "border-bottom: 2px solid #E3D9C3; margin-bottom: 22px; }"
+    ]
+    for path, _label in _NAV_TABS:
+        key = f"tab-{_slug(path)}"
+        is_active = path == active_path
+        color = COLOR_COBALT if is_active else "#8A8068"
+        weight = 700 if is_active else 500
+        border = f"3px solid {COLOR_COBALT}" if is_active else "3px solid transparent"
+        style_rules.append(
+            f'.st-key-{key} [data-testid="stPageLink"] * {{ '
+            f"color: {color} !important; font-weight: {weight} !important; }}"
+        )
+        style_rules.append(
+            f".st-key-{key} {{ border-bottom: {border}; "
+            "padding: 2px 4px 8px; margin-bottom: -2px; }"
+        )
+        style_rules.append(f".st-key-{key}:hover [data-testid='stPageLink'] * {{ color: {COLOR_COBALT} !important; }}")
+    st.markdown(f"<style>{''.join(style_rules)}</style>", unsafe_allow_html=True)
+
+    with st.container(key="tabstrip"):
+        cols = st.columns([1, 1, 6])
+        for col, (path, label) in zip(cols, _NAV_TABS):
+            with col:
+                with st.container(key=f"tab-{_slug(path)}"):
+                    st.page_link(path, label=label)
 
 
 def status_summary_html(status: str, status_emoji: str, score: int) -> str:
