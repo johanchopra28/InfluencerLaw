@@ -9,13 +9,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT
-from app.theme import (
-    inject_brand_css,
-    render_tab_strip,
-    risk_badge_html,
-    risk_container_style,
-    status_summary_html,
-)
+from app.theme import inject_brand_css, risk_badge_html, risk_container_style, status_summary_html
 
 st.set_page_config(
     page_title=f"{APP_NAME} - Pre-Publication Legal Review",
@@ -23,7 +17,6 @@ st.set_page_config(
     layout="wide",
 )
 inject_brand_css()
-render_tab_strip("app.py")
 
 st.markdown(
     """
