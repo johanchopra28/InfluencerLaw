@@ -7,18 +7,36 @@ the Gemini SDK directly.
 Uses Gemini rather than a paid-only API deliberately: Google AI Studio issues
 free-tier API keys with no card required, so a publicly hosted demo of this
 app costs nothing to run, regardless of how many people use it.
+
+Groq is an optional backup. If GROQ_API_KEY is set and the first-choice service
+fails (after its own retries), the same request is sent to the other service.
+With no Groq key the behaviour is exactly as before. Failures are logged by type
+and status code only, never with any document text.
 """
 from __future__ import annotations
 
+import base64
 import json
+import logging
 import re
 import time
 from functools import lru_cache
 
+import httpx
 from google import genai
 from google.genai import errors, types
 
-from app.config import GEMINI_API_KEY, MODEL_NAME, VISION_MODEL_NAME
+from app.config import (
+    GEMINI_API_KEY,
+    GROQ_API_KEY,
+    GROQ_MODEL_NAME,
+    GROQ_VISION_MODEL_NAME,
+    MODEL_NAME,
+    PRIMARY_PROVIDER,
+    VISION_MODEL_NAME,
+)
+
+log = logging.getLogger("hypecheck.llm")
 
 # Confirmed by direct load-testing on 2026-10-07: the free tier returns genuine,
 # transient 503s under model-level high demand and 429s under concurrent load
@@ -32,6 +50,25 @@ _BASE_DELAY_SECONDS = 2.0
 
 class LLMConfigError(RuntimeError):
     pass
+
+
+class GroqError(RuntimeError):
+    """A failed Groq call. Carries the HTTP status (None for a network error) and
+    never the response body, which could quote the user's document."""
+
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code = code
+
+
+class _Reply:
+    """The one attribute _request_json reads from a Gemini response."""
+
+    def __init__(self, text):
+        self.text = text
+
+
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
 def _with_retry(fn):
@@ -108,44 +145,135 @@ def _request_json(make_request) -> dict | list:
     raise last_error
 
 
-def call_json(
-    system: str, user_text: str, max_tokens: int = 4096, temperature: float | None = None
-) -> dict | list:
+def _groq_request(model, messages, max_tokens, temperature):
+    """One chat-completions call to Groq in JSON mode, with the same short retry on
+    429 and 503 as the Gemini path."""
+    body = {
+        "model": model,
+        "messages": messages,
+        "response_format": {"type": "json_object"},
+        # Some Groq models spend part of this budget on reasoning before answering.
+        "max_completion_tokens": max_tokens + 2048,
+    }
+    if temperature is not None:
+        body["temperature"] = temperature
+    for attempt in range(_MAX_ATTEMPTS):
+        try:
+            resp = httpx.post(
+                GROQ_URL, headers={"Authorization": f"Bearer {GROQ_API_KEY}"}, json=body, timeout=90.0
+            )
+        except httpx.HTTPError as e:
+            raise GroqError(None, f"Groq network error ({type(e).__name__})") from e
+        if resp.status_code == 200:
+            try:
+                return _Reply(resp.json()["choices"][0]["message"]["content"] or "")
+            except (ValueError, KeyError, IndexError, TypeError) as e:
+                raise GroqError(200, "Groq returned a response in an unexpected shape") from e
+        error = GroqError(resp.status_code, f"Groq returned status {resp.status_code}")
+        if resp.status_code not in _RETRYABLE_CODES or attempt == _MAX_ATTEMPTS - 1:
+            raise error
+        time.sleep(_BASE_DELAY_SECONDS * (2**attempt))
+    raise GroqError(None, "Groq call did not complete")
+
+
+def _provider_order():
+    """The services that have a key, first-choice first."""
+    order = ["groq", "gemini"] if PRIMARY_PROVIDER == "groq" else ["gemini", "groq"]
+    have = {"gemini": bool(GEMINI_API_KEY), "groq": bool(GROQ_API_KEY)}
+    return [name for name in order if have[name]]
+
+
+def _with_fallback(runners):
+    """Try each configured service in order. If all fail, raise the first error."""
+    providers = _provider_order()
+    if not providers:
+        raise LLMConfigError(
+            "No analysis service is configured. Set GEMINI_API_KEY (a free key, no card "
+            "required, at https://aistudio.google.com/apikey). GROQ_API_KEY can be added "
+            "as a backup."
+        )
+    first_error = None
+    for position, name in enumerate(providers):
+        try:
+            return runners[name]()
+        except Exception as e:  # noqa: BLE001 - any failure of one service means try the other
+            first_error = first_error or e
+            code = getattr(e, "code", None)
+            more = position < len(providers) - 1
+            log.warning(
+                "Analysis call failed on %s (%s%s)%s",
+                name,
+                type(e).__name__,
+                f", status {code}" if code else "",
+                f"; trying {providers[position + 1]}" if more else "",
+            )
+    raise first_error
+
+
+def call_json(system, user_text, max_tokens=4096, temperature=None):
     """Send a system+user prompt, expect a JSON object/array back. A low temperature
     makes repeated runs on the same input agree more often."""
-    return _request_json(
-        lambda: _client().models.generate_content(
-            model=MODEL_NAME,
-            contents=user_text,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                response_mime_type="application/json",
-                max_output_tokens=max_tokens,
-                temperature=temperature,
+    return _with_fallback(
+        {
+            "gemini": lambda: _request_json(
+                lambda: _client().models.generate_content(
+                    model=MODEL_NAME,
+                    contents=user_text,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system,
+                        response_mime_type="application/json",
+                        max_output_tokens=max_tokens,
+                        temperature=temperature,
+                    ),
+                )
             ),
-        )
+            "groq": lambda: _request_json(
+                lambda: _groq_request(
+                    GROQ_MODEL_NAME,
+                    [{"role": "system", "content": system}, {"role": "user", "content": user_text}],
+                    max_tokens,
+                    temperature,
+                )
+            ),
+        }
     )
 
 
-def call_vision_json(
-    system: str,
-    user_text: str,
-    image_bytes: bytes,
-    media_type: str,
-    max_tokens: int = 4096,
-) -> dict | list:
+def call_vision_json(system, user_text, image_bytes, media_type, max_tokens=4096):
     """Same as call_json but attaches a single image to the user turn."""
-    return _request_json(
-        lambda: _client().models.generate_content(
-            model=VISION_MODEL_NAME,
-            contents=[
-                types.Part.from_bytes(data=image_bytes, mime_type=media_type),
-                user_text,
-            ],
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                response_mime_type="application/json",
-                max_output_tokens=max_tokens,
+    data_url = f"data:{media_type};base64,{base64.b64encode(image_bytes).decode('ascii')}"
+    return _with_fallback(
+        {
+            "gemini": lambda: _request_json(
+                lambda: _client().models.generate_content(
+                    model=VISION_MODEL_NAME,
+                    contents=[
+                        types.Part.from_bytes(data=image_bytes, mime_type=media_type),
+                        user_text,
+                    ],
+                    config=types.GenerateContentConfig(
+                        system_instruction=system,
+                        response_mime_type="application/json",
+                        max_output_tokens=max_tokens,
+                    ),
+                )
             ),
-        )
+            "groq": lambda: _request_json(
+                lambda: _groq_request(
+                    GROQ_VISION_MODEL_NAME,
+                    [
+                        {"role": "system", "content": system},
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": user_text},
+                                {"type": "image_url", "image_url": {"url": data_url}},
+                            ],
+                        },
+                    ],
+                    max_tokens,
+                    None,
+                )
+            ),
+        }
     )

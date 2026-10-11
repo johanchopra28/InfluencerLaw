@@ -25,6 +25,7 @@ HYPECHECK is a screening tool, not legal advice.
    music licensing checks.
    ```
    GEMINI_API_KEY=...
+   GROQ_API_KEY=...          # optional backup if Gemini fails (https://console.groq.com/keys)
    AUDD_API_KEY=...          # optional, enables music licensing
    ```
 3. Run it:
@@ -119,7 +120,7 @@ app/dashboard.py                      results display shared by the three servic
 app/orchestrator.py                   one runner per service
 app/config.py                         brand name, disclaimer text, risk levels
 app/legal_retrieval.py                retrieval layer: chunk + TF-IDF search over data/legal_sources
-app/llm.py                            Gemini API wrapper (text + vision, JSON parsing, retries)
+app/llm.py                            Gemini API wrapper with a Groq fallback (text + vision, JSON parsing, retries)
 app/parsing.py                        PDF/DOCX/TXT reading with clear errors, screenshot to text via vision
 app/pipeline.py                       shared Issue type + citation-resolution helpers
 app/report.py                         groups findings by priority (no score)

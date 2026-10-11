@@ -267,11 +267,13 @@ def notice(text: str) -> None:
 
 
 def require_api_key() -> None:
-    """Stop the page with a clear message if the Gemini key is not configured."""
-    if not os.environ.get("GEMINI_API_KEY"):
+    """Stop the page with a clear message if no analysis service is configured.
+    Either a Gemini key or a Groq key is enough to run."""
+    if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("GROQ_API_KEY")):
         st.error(
-            "GEMINI_API_KEY is not set. Copy .env.example to .env, add a free key from "
-            "https://aistudio.google.com/apikey, and restart the app."
+            "No analysis service is configured. Copy .env.example to .env, add a free "
+            "GEMINI_API_KEY from https://aistudio.google.com/apikey (and optionally a "
+            "GROQ_API_KEY as a backup), and restart the app."
         )
         st.stop()
 

@@ -25,6 +25,14 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 MODEL_NAME = os.environ.get("HYPECHECK_MODEL", "gemini-flash-lite-latest")
 VISION_MODEL_NAME = os.environ.get("HYPECHECK_VISION_MODEL", MODEL_NAME)
 
+# Groq is the backup analysis service. It is only used when its key is set, and only
+# when the first-choice service fails. Model names can be changed without a code edit.
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_MODEL_NAME = os.environ.get("HYPECHECK_GROQ_MODEL", "openai/gpt-oss-120b")
+GROQ_VISION_MODEL_NAME = os.environ.get("HYPECHECK_GROQ_VISION_MODEL", "qwen/qwen3.8-27b")
+# Which service is tried first: "gemini" (default) or "groq". The other is the backup.
+PRIMARY_PROVIDER = os.environ.get("HYPECHECK_PROVIDER", "gemini").strip().lower()
+
 AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
 AUDD_ENDPOINT = "https://api.audd.io/"
 
