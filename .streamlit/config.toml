@@ -11,3 +11,7 @@ font = "sans serif"
 # The pages link to each other through the in-page navigation (app/site.py), so the
 # default sidebar page list is hidden.
 showSidebarNavigation = false
+
+[server]
+# Matches the 25 MB limit stated beside every upload.
+maxUploadSize = 25

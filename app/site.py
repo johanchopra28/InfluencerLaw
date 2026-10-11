@@ -14,6 +14,7 @@ import os
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT, RISK_COLOR_HEX
+from app.privacy import SHORT_NOTICE, SHORT_TITLE
 
 CREAM = "#F9F3EC"
 BLUSH = "#EDD9CF"
@@ -28,6 +29,7 @@ SANS = '"Helvetica Neue", Helvetica, Arial, sans-serif'
 PAD = "max(48px, calc((100% - 1004px) / 2))"
 
 HOME_PATH = "app.py"
+PRIVACY_PATH = "pages/4_Privacy.py"
 
 SERVICES = {
     "contract": {
@@ -118,6 +120,7 @@ _CSS = """
 .hc ul.hc-needs { list-style: none; padding: 0; margin: 22px 0 22px; display: flex; flex-wrap: wrap; gap: 10px; }
 .hc ul.hc-needs li { border: 1px solid #C9BBB0; background: rgba(251, 247, 242, 0.7); padding: 7px 14px; font-size: 12.5px; }
 .hc .hc-mini { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #6E655E; margin-bottom: 8px; }
+.hc h2.hc-h2 { font-family: @SERIF@ !important; font-weight: 700 !important; font-size: 24px !important; margin: 36px 0 12px !important; padding: 0 !important; color: @INK@ !important; }
 .hc .hc-body { font-size: 14px; line-height: 1.65; color: #333; }
 .hc .hc-small { font-size: 12.5px; line-height: 1.6; color: #6B625B; }
 .hc .hc-quote { font-size: 15px; line-height: 1.5; }
@@ -145,6 +148,31 @@ _CSS = """
 .hc .hc-row:last-child { border-bottom: 1px solid @HAIR@; }
 .hc .hc-row-topic { font-weight: 700; font-size: 14px; }
 .hc .hc-row-status { display: block; margin-top: 4px; font-weight: 400; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #6E655E; }
+
+.hc a { color: @INK@; text-decoration: underline; text-underline-offset: 3px; }
+.hc .hc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.hc .hc-tag { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid #9C918A; color: #5B524B; padding: 3px 9px; }
+.hc .hc-tag--missing { border-color: @MUSTARD@; color: #8A6A1B; }
+.hc .hc-tag--human { border-color: @RED@; color: @RED@; }
+.hc .hc-result { font-family: @SERIF@; font-size: 22px; line-height: 1.35; margin-bottom: 14px; }
+.hc .hc-counts { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 22px; font-size: 13px; }
+.hc .hc-counts i, .hc .hc-chip i.dot-none { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; }
+.hc .hc-chip i.dot-none { border: 1px solid #9C918A; background: transparent; margin-right: 0; }
+.hc .hc-scope { margin: 6px 0 22px; padding-left: 18px; font-size: 13.5px; line-height: 1.65; color: #3E3731; }
+.hc .hc-group { display: flex; align-items: baseline; gap: 14px; margin: 44px 0 4px; }
+.hc .hc-group b { font-family: @SERIF@; font-size: 26px; font-weight: 700; }
+.hc .hc-group span { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #6E655E; }
+.hc .hc-criteria { margin-top: 18px; }
+.hc .hc-criteria .hc-row { grid-template-columns: 170px 1fr; padding: 10px 0; }
+.hc .hc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.hc .hc-compare > div { border: 1px solid @HAIR@; background: #FBF7F2; padding: 20px 24px; }
+.hc ins.hc-ins { background: #DCEBDD; text-decoration: none; padding: 0 2px; }
+.hc del.hc-del { background: #F4DAD5; padding: 0 2px; }
+.hc .hc-privacy { border: 1px solid @HAIR@; background: #FBF7F2; padding: 18px 22px; margin: 6px 0 14px; }
+.hc .hc-privacy .hc-privacy-title { font-family: @SERIF@; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+.st-key-privacy-link [data-testid="stPageLink-NavLink"] { background: transparent; padding: 0; min-height: 0; border-radius: 0; }
+.st-key-privacy-link [data-testid="stPageLink-NavLink"] p { font-size: 13px; text-decoration: underline; text-underline-offset: 3px; margin: 0; }
+[class*="st-key-field-err-"] { border-left: 3px solid @RED@; padding-left: 14px; }
 
 .stButton > button, .stDownloadButton > button { border-radius: 0; box-shadow: none; padding: 12px 26px; min-height: 48px; transition: background 0.12s ease; }
 .stButton > button p, .stDownloadButton > button p { font-size: 14px; margin: 0; }
@@ -182,7 +210,7 @@ def inject_site_css(extra: str = "") -> None:
     css = _CSS
     for token, value in {
         "@CREAM@": CREAM, "@BLUSH@": BLUSH, "@INK@": INK, "@HAIR@": HAIR,
-        "@SANS@": SANS, "@SERIF@": SERIF, "@PAD@": PAD,
+        "@SANS@": SANS, "@SERIF@": SERIF, "@PAD@": PAD, "@RED@": RED, "@MUSTARD@": MUSTARD,
     }.items():
         css = css.replace(token, value)
     st.markdown(f"<style>{compact(css + extra)}</style>", unsafe_allow_html=True)
@@ -246,3 +274,109 @@ def require_api_key() -> None:
             "https://aistudio.google.com/apikey, and restart the app."
         )
         st.stop()
+
+
+def privacy_notice() -> None:
+    """The short privacy notice, shown beside every upload and before any submission."""
+    st.markdown(
+        compact(
+            f"""
+            <div class="hc"><div class="hc-privacy">
+            <div class="hc-privacy-title">{esc(SHORT_TITLE)}</div>
+            <div class="hc-body">{esc(SHORT_NOTICE)}</div>
+            </div></div>
+            """
+        ),
+        unsafe_allow_html=True,
+    )
+    with st.container(key="privacy-link"):
+        st.page_link(PRIVACY_PATH, label="Read the full privacy notice")
+
+
+def keep_state(*keys: str) -> None:
+    """Keep widget values when the user visits another page and comes back.
+
+    Streamlit drops a widget's state when its page is left. Assigning the value to
+    its own key at the top of the page marks it as set through the session state
+    API, which survives the page change. File uploads cannot be kept this way.
+    """
+    for key in keys:
+        if key in st.session_state:
+            st.session_state[key] = st.session_state[key]
+
+
+def reset_state(prefix: str) -> None:
+    """Callback for "Run another check": forget results and form values for one service."""
+    for key in [k for k in st.session_state.keys() if str(k).startswith(prefix)]:
+        del st.session_state[key]
+    st.session_state[f"gen-{prefix}"] = st.session_state.get(f"gen-{prefix}", 0) + 1
+
+
+def upload_key(prefix: str, name: str) -> str:
+    """Key for a file uploader. It changes on reset, because deleting an uploader's key
+    does not clear the file the browser is already showing."""
+    return f"{prefix}{name}_{st.session_state.get(f'gen-{prefix}', 0)}"
+
+
+def field(name: str, errors: set[str]):
+    """Container for one form field. When the field failed validation it gets a red edge,
+    so the user can see which one needs attention."""
+    return st.container(key=f"field-err-{name}" if name in errors else f"field-ok-{name}")
+
+
+def field_message(name: str, errors: dict[str, str]) -> None:
+    """The specific message for a field that failed validation, placed right under it."""
+    if name in errors:
+        st.markdown(
+            f'<div class="hc"><div class="hc-small" style="color:{RED};margin-top:6px">{esc(errors[name])}</div></div>',
+            unsafe_allow_html=True,
+        )
+
+
+ANALYSIS_FAILED = (
+    "The review could not be completed. This is usually a temporary problem with the analysis "
+    "service, so trying again often works. Everything you entered is still on this page."
+)
+
+
+def form_errors(prefix: str) -> dict[str, str]:
+    """Validation messages from the last submit, keyed by field name."""
+    return st.session_state.get(f"{prefix}errors", {})
+
+
+def gate(prefix: str, triggered: bool, validate) -> bool:
+    """Decide whether a submit may run the analysis.
+
+    validate() returns {field name: message} for required information that is
+    missing. If anything is missing the page reruns with that field marked and
+    explained. When the user has fixed the fields, the page reruns once more so
+    the marks clear before the analysis starts. Returns True when it is time to run.
+    """
+    errors_key, go_key = f"{prefix}errors", f"{prefix}go"
+    previous = st.session_state.get(errors_key, {})
+    go = st.session_state.pop(go_key, False)
+    if not (triggered or go):
+        return False
+    errors = validate()
+    if errors:
+        st.session_state[errors_key] = errors
+        st.rerun()
+    if previous:
+        st.session_state[errors_key] = {}
+        st.session_state[go_key] = True
+        st.rerun()
+    return True
+
+
+def fail_field(prefix: str, name: str, message: str) -> None:
+    """Mark one field as the problem (for example an unreadable file) and rerun."""
+    st.session_state[f"{prefix}errors"] = {name: message}
+    st.rerun()
+
+
+def failure_panel(prefix: str) -> bool:
+    """Shown after a failed analysis. Returns True when the user clicks Try again."""
+    if not st.session_state.get(f"{prefix}failed"):
+        return False
+    st.error(ANALYSIS_FAILED)
+    return st.button("Try again", key=f"{prefix}retry")

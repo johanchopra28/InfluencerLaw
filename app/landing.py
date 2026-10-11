@@ -20,6 +20,7 @@ from app.site import (
     HAIR,
     INK,
     PAD,
+    PRIVACY_PATH,
     RED,
     SANS,
     SERIF,
@@ -130,7 +131,9 @@ _CSS = """
 .hc-limit span { font-family: @SERIF@; color: #9C918A; font-size: 18px; }
 .hc-closing { font-family: @SERIF@; font-style: italic; font-size: 21px; line-height: 1.5; max-width: 640px; margin: 44px 0 0; }
 
-.hc-footer { max-width: 1170px; margin: 0 auto; border-top: 1px solid @HAIR@; padding: 30px 48px 70px; text-align: center; font-size: 12px; line-height: 1.7; color: #7A726B; }
+.st-key-footer-privacy { padding: 0 0 56px; display: flex; justify-content: center; }
+.st-key-footer-privacy [data-testid="stPageLink-NavLink"] p { font-size: 12px; text-decoration: underline; color: #555; }
+.hc-footer { max-width: 1170px; margin: 0 auto; border-top: 1px solid @HAIR@; padding: 30px 48px 20px; text-align: center; font-size: 12px; line-height: 1.7; color: #7A726B; }
 
 @media (max-width: 820px) {
     .st-key-hero { padding: 48px 24px 40px; }
@@ -262,3 +265,5 @@ def render_landing() -> None:
                         st.page_link(svc["path"], label=svc["cta"])
 
     st.markdown(how_and_limits_html(), unsafe_allow_html=True)
+    with st.container(key="footer-privacy"):
+        st.page_link(PRIVACY_PATH, label="Privacy and data handling")

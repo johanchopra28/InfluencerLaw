@@ -79,12 +79,38 @@ def _extract_json(raw_text: str):
                 return json.loads(candidate)
             except json.JSONDecodeError:
                 continue
-    raise ValueError(f"Could not parse JSON from LLM response:\n{raw_text[:2000]}")
+    # Last resort: the model sometimes drops the quotes on a key at the start of a
+    # line (for example `_reason: "..."`). Only reached once normal parsing has failed.
+    repaired = re.sub(r'(?m)^(\s*)_?([A-Za-z][A-Za-z0-9_]*)\s*:', r'\1"\2":', text)
+    if repaired != text:
+        try:
+            return json.loads(repaired)
+        except json.JSONDecodeError:
+            pass
+    # The response itself is deliberately left out of the message: it can quote
+    # the user's documents, and this error ends up in logs and on screen.
+    raise ValueError("The analysis service returned a response that could not be read.")
+
+
+_JSON_ATTEMPTS = 2
+
+
+def _request_json(make_request) -> dict | list:
+    """Run a request and parse its JSON. The model occasionally returns malformed
+    JSON (an unquoted key, a cut-off string), so a bad response is retried once."""
+    last_error: ValueError | None = None
+    for _ in range(_JSON_ATTEMPTS):
+        resp = _with_retry(make_request)
+        try:
+            return _extract_json(resp.text or "")
+        except ValueError as e:
+            last_error = e
+    raise last_error
 
 
 def call_json(system: str, user_text: str, max_tokens: int = 4096) -> dict | list:
     """Send a system+user prompt, expect a JSON object/array back."""
-    resp = _with_retry(
+    return _request_json(
         lambda: _client().models.generate_content(
             model=MODEL_NAME,
             contents=user_text,
@@ -95,8 +121,6 @@ def call_json(system: str, user_text: str, max_tokens: int = 4096) -> dict | lis
             ),
         )
     )
-    raw_text = resp.text or ""
-    return _extract_json(raw_text)
 
 
 def call_vision_json(
@@ -107,7 +131,7 @@ def call_vision_json(
     max_tokens: int = 4096,
 ) -> dict | list:
     """Same as call_json but attaches a single image to the user turn."""
-    resp = _with_retry(
+    return _request_json(
         lambda: _client().models.generate_content(
             model=VISION_MODEL_NAME,
             contents=[
@@ -121,5 +145,3 @@ def call_vision_json(
             ),
         )
     )
-    raw_text = resp.text or ""
-    return _extract_json(raw_text)

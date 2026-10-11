@@ -36,7 +36,6 @@ DISCLAIMER_TEXT = (
     "HYPECHECK is a screening tool, not legal advice. "
     "It does not replace review by a qualified lawyer."
 )
-LAWYER_CONSULT_NOTE = "⚠ Consult a lawyer before publishing this."
 
 # Brand palette (HYPECHECK_SPEC.md Section 5.1). Status colors are reserved for their
 # functional role only -- never reused as decorative/editorial color.
@@ -62,21 +61,7 @@ RISK_COLOR_HEX = {
     RISK_NONE: "#4A7A52",
 }
 
-RISK_EMOJI = {
-    RISK_HIGH: "\U0001F534",  # red circle
-    RISK_MEDIUM: "\U0001F7E1",  # yellow circle
-    RISK_LOW: "\U0001F7E2",  # green circle
-    RISK_NONE: "\U0001F7E2",
-}
 
-# Deduction applied to the 100-point compliance score per flagged issue, by severity.
-# This is the ENTIRE scoring rule -- shown verbatim in the dashboard so it is auditable,
-# not a black box.
-SCORE_DEDUCTIONS = {
-    RISK_HIGH: 25,
-    RISK_MEDIUM: 10,
-    RISK_LOW: 3,
-}
 
 MODULE_NAMES = {
     "contract_review": "Contract Review",

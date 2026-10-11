@@ -40,12 +40,12 @@ asks only for the fields it needs.
 
 | Service | Page | What it takes | What it checks |
 |---|---|---|---|
-| Contract check | `pages/1_Contract_Check.py` | A contract (PDF or DOCX), optionally a caption to test against it | Potentially risky clauses, expected clauses that are missing, missing or unclear commercial terms, and (with a caption) whether the content breaks the contract's own rules |
-| Campaign check | `pages/2_Campaign_Check.py` | The brief, claims and evidence, planned deliverables, planned disclosure | Claim substantiation, disclosure plan, comparisons, consumer-protection exposure |
-| Content check | `pages/3_Content_Check.py` | A caption or transcript (or a screenshot), optional evidence and audio track | Disclosure, claim substantiation, comparisons, consumer-protection exposure, music licensing |
+| Contract check | `pages/1_Contract_Check.py` | A contract (PDF, DOCX or TXT), optional role, jurisdiction and focus areas, optionally a caption to test against it | Potentially risky clauses, expected clauses that are missing, missing or unclear commercial terms, and (with a caption) whether the content breaks the contract's own rules |
+| Campaign check | `pages/2_Campaign_Check.py` | A brief (PDF, DOCX or TXT) that pre-fills the form, or the details entered by hand: campaign type, deliverables, requirements, supporting materials | Claim substantiation, disclosure plan, comparisons, consumer-protection exposure |
+| Content check | `pages/3_Content_Check.py` | Pasted text, a file, or an image of a post; optional format, platform, relationship, context and audio track | Disclosure, claim substantiation, comparisons, consumer-protection exposure, music licensing |
 
 Each service runs only the checks that make sense for its inputs
-(`app/orchestrator.py`), scores them together, and shows the results on the same page.
+(`app/orchestrator.py`), groups the flags by priority, and shows the results on the same page. There is no score and no "approved" status: the tool never certifies content as compliant.
 
 ## How the checks work
 
@@ -69,8 +69,13 @@ actual provision text first, and every scored flag cites what was retrieved. Con
 review keeps terms that no provision covers (usage rights, payment timing, termination)
 in a separate "points to confirm" list that is never scored.
 
-Compliance scoring (`app/scoring.py`) is a visible, fixed deduction rule shown in the
-results. Overall status is High risk, Needs revision, or Post approved.
+Results (`app/report.py`) are grouped as High, Medium and Low priority, with the criteria
+shown on the page. A finding is tagged Potential risk, Missing information or Needs human
+review. Results can be exported as a PDF generated for the session (`app/export.py`).
+
+Privacy copy (`app/privacy.py`) describes what the app actually does: nothing is written
+to disk, the Gemini free tier may use submitted content to improve Google's products, and
+audio goes to AudD. Revisit it if the app moves to a paid Gemini key.
 
 Music licensing calls AudD's audio-fingerprinting API. A match is reported as
 identified, not cleared, and any flag that needs an outside license offers a
@@ -88,11 +93,13 @@ status. The shared look lives in `app/site.py`; the landing page adds its own st
 - Jurisdiction: India. Legal sources: the ASCI Code, ASCI's Influencer Advertising
   Guidelines, the CCPA Misleading Advertisement Guidelines 2022, the Consumer
   Protection Act 2019, and the Consumer Protection (E-Commerce) Rules 2020.
-- Content input: pasted caption or transcript text, or an Instagram screenshot. Video
-  upload isn't supported yet; paste the transcript instead.
-- Contracts: text-based PDF or DOCX. Scanned PDFs aren't supported yet.
+- Content input: pasted text, a PDF, DOCX or TXT file, or an image (only text visible in
+  the image is read). Video upload isn't supported yet; paste the script instead.
+- Documents: text-based PDF, DOCX or TXT up to 25 MB. Scanned PDFs, .doc, Excel and
+  PowerPoint aren't supported yet, and the page says so. Uploads are cleared when you
+  leave a page; typed fields are kept.
 - Music licensing takes an audio file directly (mp3, wav, m4a, ogg). Without an AudD
-  key this check is skipped and the results say so, rather than scoring it as clear.
+  key this check is skipped and the results say so, rather than treating it as clear.
 - A legal resource repository and AI-generated content detection aren't built yet.
 
 ## Project layout
@@ -102,16 +109,20 @@ app.py                                Landing page (Streamlit entry point)
 pages/1_Contract_Check.py             Contract service
 pages/2_Campaign_Check.py             Campaign service
 pages/3_Content_Check.py              Content service
+pages/4_Privacy.py                    Privacy and data handling
 app/site.py                           shared look: palette, base styles, navigation, page header
 app/landing.py                        landing page markup and styles
 app/dashboard.py                      results display shared by the three services
 app/orchestrator.py                   one runner per service
-app/config.py                         brand name, disclaimer text, risk levels, scoring weights
+app/config.py                         brand name, disclaimer text, risk levels
 app/legal_retrieval.py                retrieval layer: chunk + TF-IDF search over data/legal_sources
 app/llm.py                            Gemini API wrapper (text + vision, JSON parsing, retries)
-app/parsing.py                        PDF/DOCX parsing, screenshot to text via vision
+app/parsing.py                        PDF/DOCX/TXT reading with clear errors, screenshot to text via vision
 app/pipeline.py                       shared Issue type + citation-resolution helpers
-app/scoring.py                        the compliance score rule
+app/report.py                         groups findings by priority (no score)
+app/export.py                         PDF export of results
+app/privacy.py                        privacy copy
+app/sources.py                        verified links to legal sources
 app/pdfgen.py                         the license-later deferral document generator
 app/modules/                          the individual checks (see the table above)
 data/legal_sources/*.md               cleaned source text for the retrieval layer
