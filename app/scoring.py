@@ -41,7 +41,9 @@ class CampaignReport:
         return out
 
 
-def score_campaign(issues: list[Issue]) -> CampaignReport:
+def score_campaign(issues: list[Issue], modules: list[str] | None = None) -> CampaignReport:
+    """Score a set of issues. `modules` limits the category breakdown to the checks
+    that actually ran for this service (default: all of them)."""
     score = 100
     for issue in issues:
         score -= SCORE_DEDUCTIONS.get(issue.risk, 0)
@@ -59,7 +61,7 @@ def score_campaign(issues: list[Issue]) -> CampaignReport:
     by_module: dict[str, list[str]] = {m: [] for m in MODULE_NAMES}
     for issue in issues:
         by_module.setdefault(issue.module, []).append(issue.risk)
-    for module in MODULE_NAMES:
+    for module in (modules if modules is not None else MODULE_NAMES):
         category_risk[module] = worst_risk(by_module.get(module, []))
 
     return CampaignReport(

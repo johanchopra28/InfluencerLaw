@@ -6,11 +6,11 @@ Pre-publication legal review for influencer marketing campaigns, built for India
 (the repo and deployment URL kept their original name, InfluencerLaw, so existing
 links keep working; the product itself is HYPECHECK throughout.)
 
-HYPECHECK reads a brand's contract with an influencer, the campaign brief, and the
-actual content together, and flags legal risk before anything goes live. Every flag
-cites the specific provision behind it. Nothing is a black box, and nothing is stated
-as a definitive legal conclusion: the tool tells you what provision is potentially
-implicated, why, and that a qualified lawyer should review it.
+HYPECHECK reviews the three things an influencer campaign is made of, a contract, a
+campaign brief and the content itself, and flags legal risk before anything goes live.
+Every flag cites the specific provision behind it. Nothing is a black box, and nothing
+is stated as a definitive legal conclusion: the tool tells you what provision is
+potentially implicated, why, and that a qualified lawyer should review it.
 
 HYPECHECK is a screening tool, not legal advice.
 
@@ -31,44 +31,57 @@ HYPECHECK is a screening tool, not legal advice.
    ```bash
    streamlit run app.py
    ```
-   This opens the landing page. Click "Run a review" to reach the tool itself.
 
-## How it works
+## The three services
 
-Six checks share one pipeline: extract the relevant claim or clause, classify it,
-check it against the source material, and return a verdict with a citation.
+The landing page is purely informational: what HYPECHECK does, how each service works
+and what it cannot do. Nothing is asked for there. Each service is its own page and
+asks only for the fields it needs.
 
-| Check | File | What it looks for |
-|---|---|---|
-| Disclosure | `app/modules/disclosure.py` | Is the commercial relationship disclosed, prominently, with a permitted label? |
-| ClaimCheck | `app/modules/claimcheck.py` | Does every factual or efficacy claim in the content have supporting evidence in the brief? |
-| Contract Cross-Check | `app/modules/contract_cross_check.py` | Does the content violate a restriction in the influencer's contract? |
-| Consumer Protection & E-Commerce | `app/modules/consumer_protection.py` | Surrogate advertising, endorsement due diligence, e-commerce misrepresentation, and the general "misleading advertisement" catch-all. |
-| Comparative Advertising | `app/modules/comparative.py` | Are competitor comparisons or superiority claims substantiated? |
-| Music Licensing | `app/modules/music.py` | Does the audio contain an identifiable commercial track? |
+| Service | Page | What it takes | What it checks |
+|---|---|---|---|
+| Contract check | `pages/1_Contract_Check.py` | A contract (PDF or DOCX), optionally a caption to test against it | Potentially risky clauses, expected clauses that are missing, missing or unclear commercial terms, and (with a caption) whether the content breaks the contract's own rules |
+| Campaign check | `pages/2_Campaign_Check.py` | The brief, claims and evidence, planned deliverables, planned disclosure | Claim substantiation, disclosure plan, comparisons, consumer-protection exposure |
+| Content check | `pages/3_Content_Check.py` | A caption or transcript (or a screenshot), optional evidence and audio track | Disclosure, claim substantiation, comparisons, consumer-protection exposure, music licensing |
 
-Every flag shows its full trail: detected issue, the exact evidence quote, the legal
-basis, a risk level, and a suggested fix. HIGH-risk flags also say to consult a lawyer
-before publishing. The model never free-hands legal reasoning: `app/legal_retrieval.py`
-retrieves the actual provision text first, and every flag either cites what it
-retrieved or says plainly that nothing relevant was found.
+Each service runs only the checks that make sense for its inputs
+(`app/orchestrator.py`), scores them together, and shows the results on the same page.
 
-Compliance scoring (`app/scoring.py`) is a visible, fixed deduction rule shown
-directly in the dashboard. Overall status is HIGH RISK, NEEDS REVISION, or POST
-APPROVED.
+## How the checks work
 
-Music licensing calls AudD's real audio-fingerprinting API. A match is reported as
-identified, not cleared: *"Track identified: [artist, title]. Commercial usage rights
-not verified, confirm licensing before publication."* Any flag that needs an outside
-license gets a "Generate license-later document" button that produces a signable PDF
-for the brand's legal team to sign off once it's actually cleared.
+Every check follows one pipeline: extract the relevant claim or clause, classify it,
+check it against retrieved source text, and return a verdict with a citation.
+
+| Check | File |
+|---|---|
+| Contract Review | `app/modules/contract_review.py` |
+| Contract Compliance (content against the contract) | `app/modules/contract_cross_check.py` |
+| Advertising Disclosure | `app/modules/disclosure.py` |
+| ClaimCheck | `app/modules/claimcheck.py` |
+| Comparative Advertising | `app/modules/comparative.py` |
+| Consumer Protection & E-Commerce | `app/modules/consumer_protection.py` |
+| Music Licensing | `app/modules/music.py` |
+
+Every flag shows its full trail: the evidence quote, the legal basis, why it was
+flagged, a risk level and a suggested fix. High-risk flags also say to consult a lawyer.
+The model never free-hands legal reasoning: `app/legal_retrieval.py` retrieves the
+actual provision text first, and every scored flag cites what was retrieved. Contract
+review keeps terms that no provision covers (usage rights, payment timing, termination)
+in a separate "points to confirm" list that is never scored.
+
+Compliance scoring (`app/scoring.py`) is a visible, fixed deduction rule shown in the
+results. Overall status is High risk, Needs revision, or Post approved.
+
+Music licensing calls AudD's audio-fingerprinting API. A match is reported as
+identified, not cleared, and any flag that needs an outside license offers a
+license-later PDF for the brand's legal team to sign off once it is actually cleared.
 
 ## Design
 
-Paper Cream and Ink as the base palette, Cobalt as the one UI accent color. Signal
-Coral, Caution Amber, and Cleared Green are reserved strictly for HIGH, MEDIUM, and
-APPROVED status badges and never used decoratively. Fraunces for headings, IBM Plex
-Sans for body text.
+Flat editorial style: cream and blush bands, Georgia display type, Helvetica body text,
+hairline rules and square controls. Red, mustard and green are used only for risk
+status. The shared look lives in `app/site.py`; the landing page adds its own styles in
+`app/landing.py`.
 
 ## Scope
 
@@ -77,32 +90,30 @@ Sans for body text.
   Protection Act 2019, and the Consumer Protection (E-Commerce) Rules 2020.
 - Content input: pasted caption or transcript text, or an Instagram screenshot. Video
   upload isn't supported yet; paste the transcript instead.
-- Music licensing takes an audio file directly (mp3, wav, m4a, ogg). Video files
-  aren't accepted for audio extraction; export or record just the audio track.
-  Without an AudD key, this check is skipped and the dashboard says so, rather than
-  scoring it as clear.
-- AI-generated content detection isn't built yet.
+- Contracts: text-based PDF or DOCX. Scanned PDFs aren't supported yet.
+- Music licensing takes an audio file directly (mp3, wav, m4a, ogg). Without an AudD
+  key this check is skipped and the results say so, rather than scoring it as clear.
+- A legal resource repository and AI-generated content detection aren't built yet.
 
 ## Project layout
 
 ```
 app.py                                Landing page (Streamlit entry point)
-pages/1_Run_Review.py                 The review tool: upload form + dashboard
-app/config.py                         brand name, disclaimer text, colors, risk levels, scoring weights
-app/theme.py                          typography + status-color badge helpers
+pages/1_Contract_Check.py             Contract service
+pages/2_Campaign_Check.py             Campaign service
+pages/3_Content_Check.py              Content service
+app/site.py                           shared look: palette, base styles, navigation, page header
+app/landing.py                        landing page markup and styles
+app/dashboard.py                      results display shared by the three services
+app/orchestrator.py                   one runner per service
+app/config.py                         brand name, disclaimer text, risk levels, scoring weights
 app/legal_retrieval.py                retrieval layer: chunk + TF-IDF search over data/legal_sources
-app/llm.py                            Gemini API wrapper (text + vision, JSON parsing)
-app/parsing.py                        PDF/DOCX contract parsing, screenshot to text via vision
+app/llm.py                            Gemini API wrapper (text + vision, JSON parsing, retries)
+app/parsing.py                        PDF/DOCX parsing, screenshot to text via vision
 app/pipeline.py                       shared Issue type + citation-resolution helpers
 app/scoring.py                        the compliance score rule
-app/orchestrator.py                   runs all six checks, assembles the report
 app/pdfgen.py                         the license-later deferral document generator
-app/modules/disclosure.py             Disclosure
-app/modules/claimcheck.py             ClaimCheck
-app/modules/contract_cross_check.py   Contract Cross-Check
-app/modules/consumer_protection.py    Consumer Protection & E-Commerce
-app/modules/comparative.py            Comparative Advertising
-app/modules/music.py                  Music Licensing (AudD)
+app/modules/                          the individual checks (see the table above)
 data/legal_sources/*.md               cleaned source text for the retrieval layer
 data/legal_raw/                       original source PDFs and raw extraction, for reference
 ```

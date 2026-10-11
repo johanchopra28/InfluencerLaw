@@ -56,10 +56,10 @@ RISK_NONE = "NONE"
 # badges only -- paired with an icon + plain-language label everywhere they're used, so
 # risk is never conveyed by color alone.
 RISK_COLOR_HEX = {
-    RISK_HIGH: "#C13A2A",    # Signal Coral
-    RISK_MEDIUM: "#B8791E",  # Caution Amber
-    RISK_LOW: "#206B45",     # Cleared Green
-    RISK_NONE: "#206B45",
+    RISK_HIGH: "#C0463A",    # red
+    RISK_MEDIUM: "#C9982E",  # mustard
+    RISK_LOW: "#4A7A52",     # green
+    RISK_NONE: "#4A7A52",
 }
 
 RISK_EMOJI = {
@@ -79,6 +79,7 @@ SCORE_DEDUCTIONS = {
 }
 
 MODULE_NAMES = {
+    "contract_review": "Contract Review",
     "disclosure": "Advertising Disclosure",
     "claims": "ClaimCheck (Substantiation)",
     "contract": "Contract Compliance",

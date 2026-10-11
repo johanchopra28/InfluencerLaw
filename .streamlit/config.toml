@@ -1,18 +1,13 @@
 [theme]
-# HYPECHECK brand palette (HYPECHECK_SPEC.md Section 5.1). primaryColor drives
-# buttons/links/focus rings -- deliberately Cobalt, never one of the reserved
-# status colors (Signal Coral / Caution Amber / Cleared Green), which are only
-# ever used for HIGH / MEDIUM / APPROVED badges (see app/config.py, app/theme.py).
-primaryColor = "#2C4A9E"
-backgroundColor = "#F5EFE4"
-secondaryBackgroundColor = "#EDE4D3"
-textColor = "#1B1812"
+# HYPECHECK palette: cream page, ink text and controls. Risk colors (red, mustard,
+# green) are applied per-element in app/site.py and never used as the UI accent.
+primaryColor = "#1A1A1A"
+backgroundColor = "#F9F3EC"
+secondaryBackgroundColor = "#FBF7F2"
+textColor = "#1A1A1A"
 font = "sans serif"
 
 [client]
-# Hides Streamlit's default multipage nav list in the sidebar (just "app" /
-# "Run Review" plain text links) -- it's unbranded chrome that clashes with
-# HYPECHECK_SPEC.md's design system. In-app navigation still works via the
-# landing page's "Run a review" button and the "Back to home" link on the
-# review page itself (st.page_link / st.switch_page), so nothing is stranded.
+# The pages link to each other through the in-page navigation (app/site.py), so the
+# default sidebar page list is hidden.
 showSidebarNavigation = false
