@@ -145,19 +145,36 @@ def _request_json(make_request) -> dict | list:
     raise last_error
 
 
+# Groq's free tier is limited by tokens per minute, so a rate-limit reply is normal.
+# Wait as long as Groq asks (capped) and try more times than the Gemini path does.
+_GROQ_MAX_ATTEMPTS = 6
+_GROQ_MAX_WAIT_SECONDS = 30.0
+
+
+def _groq_wait(resp, attempt):
+    try:
+        asked = float(resp.headers.get("retry-after", ""))
+    except (TypeError, ValueError, AttributeError):
+        asked = _BASE_DELAY_SECONDS * (2**attempt)
+    return min(asked + 1.0, _GROQ_MAX_WAIT_SECONDS)
+
+
 def _groq_request(model, messages, max_tokens, temperature):
-    """One chat-completions call to Groq in JSON mode, with the same short retry on
-    429 and 503 as the Gemini path."""
-    body = {
-        "model": model,
-        "messages": messages,
-        "response_format": {"type": "json_object"},
-        # Some Groq models spend part of this budget on reasoning before answering.
-        "max_completion_tokens": max_tokens + 2048,
-    }
+    """One chat-completions call to Groq in JSON mode.
+
+    Handles three Groq specifics: 429 and 503 are retried after the wait Groq asks for;
+    JSON mode rejects a top-level array even when the model answered correctly, in which
+    case the model's own answer (returned in the error) is used; and models that think
+    before answering can run out of tokens, in which case the budget is raised and the
+    call repeated."""
+    completion_budget = max_tokens + 1024
+    body = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
     if temperature is not None:
         body["temperature"] = temperature
-    for attempt in range(_MAX_ATTEMPTS):
+    if model.startswith("openai/gpt-oss"):
+        body["reasoning_effort"] = "low"
+    for attempt in range(_GROQ_MAX_ATTEMPTS):
+        body["max_completion_tokens"] = completion_budget
         try:
             resp = httpx.post(
                 GROQ_URL, headers={"Authorization": f"Bearer {GROQ_API_KEY}"}, json=body, timeout=90.0
@@ -169,10 +186,22 @@ def _groq_request(model, messages, max_tokens, temperature):
                 return _Reply(resp.json()["choices"][0]["message"]["content"] or "")
             except (ValueError, KeyError, IndexError, TypeError) as e:
                 raise GroqError(200, "Groq returned a response in an unexpected shape") from e
-        error = GroqError(resp.status_code, f"Groq returned status {resp.status_code}")
-        if resp.status_code not in _RETRYABLE_CODES or attempt == _MAX_ATTEMPTS - 1:
-            raise error
-        time.sleep(_BASE_DELAY_SECONDS * (2**attempt))
+        last = attempt == _GROQ_MAX_ATTEMPTS - 1
+        if resp.status_code == 400:
+            try:
+                err = resp.json().get("error", {})
+            except ValueError:
+                err = {}
+            if err.get("code") == "json_validate_failed":
+                answer = (err.get("failed_generation") or "").strip()
+                if answer:
+                    return _Reply(answer)
+                if not last:
+                    completion_budget += 2048  # the model ran out of tokens while thinking
+                    continue
+        if resp.status_code not in _RETRYABLE_CODES or last:
+            raise GroqError(resp.status_code, f"Groq returned status {resp.status_code}")
+        time.sleep(_groq_wait(resp, attempt))
     raise GroqError(None, "Groq call did not complete")
 
 
