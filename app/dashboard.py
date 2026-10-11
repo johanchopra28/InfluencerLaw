@@ -44,11 +44,18 @@ _GROUPS = [
 _CRITERIA = [
     (
         "High",
-        "Could expose someone to a misleading advertisement or an undisclosed endorsement, or clearly "
-        "conflicts with a cited provision.",
+        "Could expose someone to a misleading advertisement or an undisclosed endorsement, clearly "
+        "conflicts with a cited provision, or (in a contract) removes a core protection such as payment "
+        "certainty or a fair exit.",
     ),
     ("Medium", "Potentially misleading, unclear or one-sided, so a review is suggested."),
     ("Low", "A minor point."),
+    (
+        "Commercial term",
+        "A contract term that is one-sided or missing, such as payment, exclusivity, usage rights, termination "
+        "or liability. HYPECHECK's legal sources do not cover these subjects, so no legal source is cited. It is "
+        "flagged for a person to judge, not as a breach of any rule.",
+    ),
     ("Needs human review", "Ambiguous, dependent on facts or law outside the sources HYPECHECK uses, or uncertain."),
 ]
 _CONTRACT_MODULES = ("contract_review", "contract")
@@ -131,6 +138,8 @@ def _tag_class(tag: str) -> str:
 
 
 def _source_text(issue: Issue) -> str:
+    if issue.extra.get("commercial"):
+        return "No legal source cited (commercial term)"
     url = source_url(issue.legal_citation)
     return f"{issue.legal_citation} ({url})" if url else issue.legal_citation
 
@@ -221,11 +230,19 @@ def _flag_html(issue: Issue, lawyer_note: str) -> str:
         step += f'<div class="hc-mini" style="margin-top:14px">Questions to raise</div><ul class="hc-scope" style="margin:0">{items}</ul>'
     fields.append(f'<div class="hc-field"><div class="hc-mini">Recommended next step</div>{step}</div>')
 
-    source = f'<div class="hc-body">{_link(issue.legal_citation, source_url(issue.legal_citation))}</div>'
-    excerpt = _excerpt(issue.legal_text, f"{issue.evidence} {issue.explanation}") if issue.legal_text else ""
-    if excerpt:
-        source += f'<div class="hc-small" style="margin-top:6px">{esc(excerpt)}</div>'
-    fields.append(f'<div class="hc-field"><div class="hc-mini">Legal or regulatory source</div>{source}</div>')
+    if issue.extra.get("commercial"):
+        fields.append(
+            '<div class="hc-field"><div class="hc-mini">Basis for this flag</div>'
+            '<div class="hc-body">This is a commercial term. HYPECHECK&#39;s legal sources do not cover this subject, '
+            "so no legal source is cited. It is flagged because the term is one-sided or missing, not because it "
+            "breaches a rule. A person should decide whether it is acceptable.</div></div>"
+        )
+    else:
+        source = f'<div class="hc-body">{_link(issue.legal_citation, source_url(issue.legal_citation))}</div>'
+        excerpt = _excerpt(issue.legal_text, f"{issue.evidence} {issue.explanation}") if issue.legal_text else ""
+        if excerpt:
+            source += f'<div class="hc-small" style="margin-top:6px">{esc(excerpt)}</div>'
+        fields.append(f'<div class="hc-field"><div class="hc-mini">Legal or regulatory source</div>{source}</div>')
 
     if issue.risk == RISK_HIGH:
         fields.append(f'<div class="hc-lawyer">{esc(lawyer_note)}</div>')
@@ -392,6 +409,8 @@ def _render_music_notice(result: RunResult) -> None:
 def _render_sources(result: RunResult, heading: str) -> None:
     cited: list[str] = []
     for issue in result.report.issues:
+        if issue.extra.get("commercial"):
+            continue
         if issue.legal_citation not in cited:
             cited.append(issue.legal_citation)
     if not cited:

@@ -108,8 +108,11 @@ def _request_json(make_request) -> dict | list:
     raise last_error
 
 
-def call_json(system: str, user_text: str, max_tokens: int = 4096) -> dict | list:
-    """Send a system+user prompt, expect a JSON object/array back."""
+def call_json(
+    system: str, user_text: str, max_tokens: int = 4096, temperature: float | None = None
+) -> dict | list:
+    """Send a system+user prompt, expect a JSON object/array back. A low temperature
+    makes repeated runs on the same input agree more often."""
     return _request_json(
         lambda: _client().models.generate_content(
             model=MODEL_NAME,
@@ -118,6 +121,7 @@ def call_json(system: str, user_text: str, max_tokens: int = 4096) -> dict | lis
                 system_instruction=system,
                 response_mime_type="application/json",
                 max_output_tokens=max_tokens,
+                temperature=temperature,
             ),
         )
     )

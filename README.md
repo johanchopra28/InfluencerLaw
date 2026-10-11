@@ -65,9 +65,12 @@ check it against retrieved source text, and return a verdict with a citation.
 Every flag shows its full trail: the evidence quote, the legal basis, why it was
 flagged, a risk level and a suggested fix. High-risk flags also say to consult a lawyer.
 The model never free-hands legal reasoning: `app/legal_retrieval.py` retrieves the
-actual provision text first, and every scored flag cites what was retrieved. Contract
-review keeps terms that no provision covers (usage rights, payment timing, termination)
-in a separate "points to confirm" list that is never scored.
+actual provision text first, and every legal flag cites what was retrieved. Contract
+review (`app/modules/contract_review.py`) assesses a fixed 12-topic checklist on every
+run. Commercial problems that no provision covers (payment, exclusivity, usage rights,
+termination, liability) are still scored, but they carry a "Commercial term" tag, always
+need human review, and cite no legal source. Quoted clauses are checked against the
+contract text, and terms that are only unclear are listed under points to confirm.
 
 Results (`app/report.py`) are grouped as High, Medium and Low priority, with the criteria
 shown on the page. A finding is tagged Potential risk, Missing information or Needs human

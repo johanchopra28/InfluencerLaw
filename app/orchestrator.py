@@ -70,6 +70,8 @@ def review_contract(
         read_notes,
         jurisdiction,
         "Reviewed the text of the uploaded contract against HYPECHECK's legal sources.",
+        "Commercial terms such as payment, exclusivity, usage rights, termination and liability were checked "
+        "against a drafting checklist. No legal source covers them, so those flags cite none.",
         f"Focus areas: {', '.join(focus)}." if focus else "",
         "Also checked the supplied caption or script against the contract's own content rules."
         if content_text.strip()
