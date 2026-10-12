@@ -206,8 +206,28 @@ def _groq_request(model, messages, max_tokens, temperature):
 
 
 def describe_failure(exc):
-    """A short, plain explanation of why an analysis call failed. It never includes
-    document text or the service's own message, only the kind of problem."""
+    """A short, plain explanation of why an analysis call failed, plus which services
+    this site has set up. It never includes document text or the service's own
+    message, only the kind of problem."""
+    return _describe_cause(exc) + _describe_services(exc)
+
+
+def _describe_services(exc):
+    names = {"gemini": "Gemini", "groq": "Groq"}
+    failures = getattr(exc, "hc_failures", None)
+    configured = getattr(exc, "hc_configured", None)
+    if not configured:
+        return ""
+    if len(configured) == 1:
+        only = names[configured[0]]
+        return f" Only {only} is set up on this site, so there is no backup service to fall back on."
+    detail = ", ".join(
+        f"{names[n]} failed" + (f" (status {c})" if c else "") for n, c in (failures or [])
+    )
+    return f" Both services are set up and both failed: {detail}."
+
+
+def _describe_cause(exc):
     code = getattr(exc, "code", None)
     if isinstance(exc, LLMConfigError):
         return (
@@ -259,12 +279,14 @@ def _with_fallback(runners):
             "as a backup."
         )
     first_error = None
+    failures = []
     for position, name in enumerate(providers):
         try:
             return runners[name]()
         except Exception as e:  # noqa: BLE001 - any failure of one service means try the other
             first_error = first_error or e
             code = getattr(e, "code", None)
+            failures.append((name, code))
             more = position < len(providers) - 1
             log.warning(
                 "Analysis call failed on %s (%s%s)%s",
@@ -273,6 +295,11 @@ def _with_fallback(runners):
                 f", status {code}" if code else "",
                 f"; trying {providers[position + 1]}" if more else "",
             )
+    try:
+        first_error.hc_failures = failures
+        first_error.hc_configured = providers
+    except Exception:  # noqa: BLE001 - some exception types refuse new attributes
+        pass
     raise first_error
 
 
