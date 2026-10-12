@@ -16,7 +16,22 @@ try:
 except ImportError:
     pass
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+def _setting(name: str, default: str = "") -> str:
+    """A setting from the environment (.env or the host) or, failing that, from
+    Streamlit's secrets store. The second route matters on Streamlit Cloud, where
+    secrets are only copied into the environment when the app starts."""
+    value = os.environ.get(name, "")
+    if value:
+        return value
+    try:
+        import streamlit as st
+
+        return str(st.secrets.get(name, "") or default)
+    except Exception:  # noqa: BLE001 - no secrets file locally, or Streamlit not running
+        return default
+
+
+GEMINI_API_KEY = _setting("GEMINI_API_KEY")
 # gemini-3.6-flash (and its siblings gemini-3.8-flash / gemini-flash-latest) were
 # returning persistent 503 "high demand" errors as of 2026-10-07 -- confirmed via
 # direct API testing with a live key, not specific to any one key/account. The
@@ -27,13 +42,13 @@ VISION_MODEL_NAME = os.environ.get("HYPECHECK_VISION_MODEL", MODEL_NAME)
 
 # Groq is the backup analysis service. It is only used when its key is set, and only
 # when the first-choice service fails. Model names can be changed without a code edit.
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_API_KEY = _setting("GROQ_API_KEY")
 GROQ_MODEL_NAME = os.environ.get("HYPECHECK_GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_VISION_MODEL_NAME = os.environ.get("HYPECHECK_GROQ_VISION_MODEL", "qwen/qwen3.8-27b")
 # Which service is tried first: "gemini" (default) or "groq". The other is the backup.
 PRIMARY_PROVIDER = os.environ.get("HYPECHECK_PROVIDER", "gemini").strip().lower()
 
-AUDD_API_KEY = os.environ.get("AUDD_API_KEY", "")
+AUDD_API_KEY = _setting("AUDD_API_KEY")
 AUDD_ENDPOINT = "https://api.audd.io/"
 
 APP_NAME = "HYPECHECK"

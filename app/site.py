@@ -14,6 +14,7 @@ import os
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT, RISK_COLOR_HEX
+from app.config import GEMINI_API_KEY, GROQ_API_KEY
 from app.llm import describe_failure
 from app.privacy import SHORT_NOTICE, SHORT_TITLE
 
@@ -270,7 +271,7 @@ def notice(text: str) -> None:
 def require_api_key() -> None:
     """Stop the page with a clear message if no analysis service is configured.
     Either a Gemini key or a Groq key is enough to run."""
-    if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("GROQ_API_KEY")):
+    if not (GEMINI_API_KEY or GROQ_API_KEY):
         st.error(
             "No analysis service is configured. Copy .env.example to .env, add a free "
             "GEMINI_API_KEY from https://aistudio.google.com/apikey (and optionally a "
