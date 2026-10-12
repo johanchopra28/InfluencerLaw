@@ -114,6 +114,8 @@ pages/1_Contract_Check.py             Contract service
 pages/2_Campaign_Check.py             Campaign service
 pages/3_Content_Check.py              Content service
 pages/4_Privacy.py                    Privacy and data handling
+pages/5_AI_Disclosure.py               AI disclosure: what the AI does, what it runs on, its limits
+pages/6_FAQ.py                         Frequently asked questions
 app/site.py                           shared look: palette, base styles, navigation, page header
 app/landing.py                        landing page markup and styles
 app/dashboard.py                      results display shared by the three services
@@ -126,6 +128,8 @@ app/pipeline.py                       shared Issue type + citation-resolution he
 app/report.py                         groups findings by priority (no score)
 app/export.py                         PDF export of results
 app/privacy.py                        privacy copy
+app/ai_disclosure.py                   AI disclosure copy
+app/faq.py                            FAQ copy
 app/sources.py                        verified links to legal sources
 app/pdfgen.py                         the license-later deferral document generator
 app/modules/                          the individual checks (see the table above)

@@ -14,6 +14,8 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT
+from app.ai_disclosure import AI_DISCLOSURE_PATH
+from app.faq import FAQ_PATH
 from app.site import (
     BLUSH,
     CREAM,
@@ -131,8 +133,8 @@ _CSS = """
 .hc-limit span { font-family: @SERIF@; color: #9C918A; font-size: 18px; }
 .hc-closing { font-family: @SERIF@; font-style: italic; font-size: 21px; line-height: 1.5; max-width: 640px; margin: 44px 0 0; }
 
-.st-key-footer-privacy { padding: 0 0 56px; display: flex; justify-content: center; }
-.st-key-footer-privacy [data-testid="stPageLink"] { width: 100%; display: flex; justify-content: center; }
+.st-key-footer-privacy { padding: 0 0 56px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 12px 36px; }
+.st-key-footer-privacy [data-testid="stPageLink"] { width: auto; display: flex; justify-content: center; }
 .st-key-footer-privacy [data-testid="stPageLink-NavLink"] { justify-content: center; }
 .st-key-footer-privacy [data-testid="stPageLink-NavLink"] p { font-size: 17px; font-weight: 700; text-decoration: underline; color: @INK@; }
 .hc-footer { max-width: 1170px; margin: 0 auto; border-top: 1px solid @HAIR@; padding: 30px 48px 20px; text-align: center; font-size: 12px; line-height: 1.7; color: #7A726B; }
@@ -268,4 +270,6 @@ def render_landing() -> None:
 
     st.markdown(how_and_limits_html(), unsafe_allow_html=True)
     with st.container(key="footer-privacy"):
+        st.page_link(FAQ_PATH, label="FAQ")
+        st.page_link(AI_DISCLOSURE_PATH, label="AI disclosure")
         st.page_link(PRIVACY_PATH, label="Privacy and data handling")
