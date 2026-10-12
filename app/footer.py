@@ -16,14 +16,16 @@ CREDIT = [
 
 _CSS = """
 <style>
-.hc-sitefooter { max-width: 1170px; margin: 40px auto 0; border-top: 1px solid @HAIR@; padding: 30px 48px 14px; text-align: center; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.7; color: #7A726B; }
+.hc-sitefooter { max-width: 1170px; margin: 40px auto 0; border-top: 1px solid @HAIR@; padding: 30px 48px 30px; text-align: center; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.7; color: #7A726B; }
 .hc-sitefooter .hc-credit { display: inline-block; margin-top: 8px; }
 .hc-sitefooter .hc-credit a { color: @INK@; font-weight: 700; text-decoration: underline; }
 .st-key-site-footer-links { padding: 0 0 56px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 12px 36px; }
 .st-key-site-footer-links [data-testid="stPageLink"] { width: auto; display: flex; justify-content: center; }
 .st-key-site-footer-links [data-testid="stPageLink-NavLink"] { justify-content: center; }
-.st-key-site-footer-links [data-testid="stPageLink-NavLink"] p { font-size: 17px; font-weight: 700; text-decoration: underline; color: @INK@; }
-@media (max-width: 820px) { .hc-sitefooter { padding: 28px 24px 14px; } }
+.st-key-site-footer-links [data-testid="stPageLink-NavLink"] { background: transparent; padding: 6px 0; min-height: 0; border-radius: 0; }
+.st-key-site-footer-links [data-testid="stPageLink-NavLink"] p { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #555; margin: 0; text-decoration: none; font-weight: 400; }
+.st-key-site-footer-links [data-testid="stPageLink-NavLink"]:hover p { color: @INK@; }
+@media (max-width: 820px) { .hc-sitefooter { padding: 28px 24px 28px; } }
 </style>
 """.replace("@HAIR@", HAIR).replace("@INK@", INK)
 
