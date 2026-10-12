@@ -225,10 +225,12 @@ def _flag_html(issue: Issue, lawyer_note: str) -> str:
     if fix and issue.module in ("claims", "comparative"):
         fix = f"Suggested wording: “{fix}”"
     step = f'<div class="hc-body">{esc(fix or "No next step suggested.")}</div>'
-    if issue.module in _CONTRACT_MODULES and issue.suggested_fix:
+    if issue.suggested_fix and issue.module in ("claims", "comparative"):
+        step += f'<div class="hc-small" style="margin-top:6px">{esc(_WORDING_NOTE)}</div>'
+    elif issue.module in _CONTRACT_MODULES and issue.suggested_fix:
         step += (
             '<div class="hc-small" style="margin-top:6px">A suggestion for discussion, '
-            "not a clause approved by a lawyer.</div>"
+            f"not a clause approved by a lawyer. {esc(_WORDING_NOTE)}</div>"
         )
     questions = issue.extra.get("questions") or []
     if questions:
@@ -281,6 +283,10 @@ def _rows_html(rows: list[tuple[str, str, str]]) -> str:
     return f'<div class="hc"><div class="hc-rows">{inner}</div></div>'
 
 
+_WORDING_NOTE = (
+    "This wording is a starting point only. Apply a more contextualised factual and legal check before "
+    "considering it, and do not use it as is."
+)
 _ADVICE_LINE = "Please take legal advice as applicable to the context and the contractual dealing."
 
 
@@ -338,7 +344,11 @@ def _issue_payload(issue: Issue) -> dict:
         "reference": issue.extra.get("reference", ""),
         "evidence": issue.evidence,
         "why": issue.explanation,
-        "next_step": issue.suggested_fix,
+        "next_step": (
+            f"{issue.suggested_fix} ({_WORDING_NOTE})"
+            if issue.suggested_fix and issue.module in ("claims", "comparative", *_CONTRACT_MODULES)
+            else issue.suggested_fix
+        ),
         "questions": issue.extra.get("questions") or [],
         "source": _source_text(issue),
     }
@@ -550,7 +560,7 @@ def render_content_results(result: RunResult, *, original: str, reset_prefix: st
                 <div class="hc">
                 <p class="hc-small" style="max-width:700px">A suggested caption that addresses the flags above while keeping
                 your message. Changes are highlighted. It is a suggestion: it has not been reviewed or approved by a lawyer,
-                a regulator or a platform, and it is not guaranteed to be legally compliant.</p>
+                a regulator or a platform, and it is not guaranteed to be legally compliant. {esc(_WORDING_NOTE)}</p>
                 <div class="hc-compare">
                 <div><div class="hc-mini">Original</div><div class="hc-body">{left}</div></div>
                 <div><div class="hc-mini">Suggested</div><div class="hc-body">{right}</div></div>
@@ -567,7 +577,7 @@ def render_content_results(result: RunResult, *, original: str, reset_prefix: st
                 unsafe_allow_html=True,
             )
         sections.append(
-            ("Suggested revision", [("Original", original), ("Suggested", revision["revised_text"])] + [("Change", c) for c in changes])
+            ("Suggested revision", [("Original", original), ("Suggested", revision["revised_text"]), ("Note", _WORDING_NOTE)] + [("Change", c) for c in changes])
         )
 
     _render_sources(result, "Legal and regulatory sources cited")
