@@ -19,8 +19,8 @@ SHORT_NOTICE = (
     "results, what you submit is sent to Google's Gemini API, which this app uses on a free "
     "tier. Under Google's terms for that tier, submitted content may be used to improve "
     "Google's products and may be read by human reviewers. If that service is unavailable and a "
-    "backup is configured, the same material may be sent to Groq instead. Audio you add is sent to AudD to "
-    "identify the music. Only upload material you are authorised to share, and avoid "
+    "backup is configured, the same material may be sent to Groq instead. Only upload material you are "
+    "authorised to share, and avoid "
     "unnecessary personal information, passwords and confidential third-party material."
 )
 
@@ -64,8 +64,6 @@ FULL_NOTICE = [
             "Groq. This app can use Groq as a backup if the Gemini service fails. In that case your "
             "text, documents or images are sent to Groq to be analysed instead. Groq's own terms govern "
             "how it handles them, and this app has not verified its retention or training practices.",
-            "AudD. If you add an audio track, it is sent to AudD to identify the music. It is "
-            "sent only when you add one.",
         ],
     ),
     (

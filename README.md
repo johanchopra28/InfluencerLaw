@@ -23,12 +23,10 @@ HYPECHECK is a screening tool, not legal advice.
    pip install -r requirements.txt
    ```
 2. Copy `.env.example` to `.env` and add a free Gemini API key (no card needed, get
-   one at https://aistudio.google.com/apikey). Add an AudD API key too if you want
-   music licensing checks.
+   one at https://aistudio.google.com/apikey).
    ```
    GEMINI_API_KEY=...
    GROQ_API_KEY=...          # optional backup if Gemini fails (https://console.groq.com/keys)
-   AUDD_API_KEY=...          # optional, enables music licensing
    ```
 3. Run it:
    ```bash
@@ -45,7 +43,7 @@ asks only for the fields it needs.
 |---|---|---|---|
 | Contract check | `pages/1_Contract_Check.py` | A contract (PDF, DOCX or TXT), optional role, jurisdiction and focus areas, optionally a caption to test against it | Potentially risky clauses, expected clauses that are missing, missing or unclear commercial terms, and (with a caption) whether the content breaks the contract's own rules |
 | Campaign check | `pages/2_Campaign_Check.py` | A brief (PDF, DOCX or TXT) that pre-fills the form, or the details entered by hand: campaign type, deliverables, requirements, supporting materials | Claim substantiation, disclosure plan, comparisons, consumer-protection exposure |
-| Content check | `pages/3_Content_Check.py` | Pasted text, a file, or an image of a post; optional format, platform, relationship, context and audio track | Disclosure, claim substantiation, comparisons, consumer-protection exposure, music licensing |
+| Content check | `pages/3_Content_Check.py` | Pasted text, a file, or an image of a post; optional format, platform, relationship and context | Disclosure, claim substantiation, comparisons, consumer-protection exposure |
 
 Each service runs only the checks that make sense for its inputs
 (`app/orchestrator.py`), groups the flags by priority, and shows the results on the same page. There is no score and no "approved" status: the tool never certifies content as compliant.
@@ -63,7 +61,6 @@ check it against retrieved source text, and return a verdict with a citation.
 | ClaimCheck | `app/modules/claimcheck.py` |
 | Comparative Advertising | `app/modules/comparative.py` |
 | Consumer Protection & E-Commerce | `app/modules/consumer_protection.py` |
-| Music Licensing | `app/modules/music.py` |
 
 Every flag shows its full trail: the evidence quote, the legal basis, why it was
 flagged, a risk level and a suggested fix. High-risk flags also say to consult a lawyer.
@@ -81,11 +78,7 @@ review. Results can be exported as a PDF generated for the session (`app/export.
 
 Privacy copy (`app/privacy.py`) describes what the app actually does: nothing is written
 to disk, the Gemini free tier may use submitted content to improve Google's products, and
-audio goes to AudD. Revisit it if the app moves to a paid Gemini key.
-
-Music licensing calls AudD's audio-fingerprinting API. A match is reported as
-identified, not cleared, and any flag that needs an outside license offers a
-license-later PDF for the brand's legal team to sign off once it is actually cleared.
+Groq may be used as a backup. Revisit it if the app moves to a paid Gemini key.
 
 ## Design
 
@@ -104,8 +97,6 @@ status. The shared look lives in `app/site.py`; the landing page adds its own st
 - Documents: text-based PDF, DOCX or TXT up to 25 MB. Scanned PDFs, .doc, Excel and
   PowerPoint aren't supported yet, and the page says so. Uploads are cleared when you
   leave a page; typed fields are kept.
-- Music licensing takes an audio file directly (mp3, wav, m4a, ogg). Without an AudD
-  key this check is skipped and the results say so, rather than treating it as clear.
 - A legal resource repository and AI-generated content detection aren't built yet.
 
 ## Project layout
@@ -133,7 +124,6 @@ app/privacy.py                        privacy copy
 app/ai_disclosure.py                   AI disclosure copy
 app/faq.py                            FAQ copy
 app/sources.py                        verified links to legal sources
-app/pdfgen.py                         the license-later deferral document generator
 app/modules/                          the individual checks (see the table above)
 data/legal_sources/*.md               cleaned source text for the retrieval layer
 data/legal_raw/                       original source PDFs and raw extraction, for reference

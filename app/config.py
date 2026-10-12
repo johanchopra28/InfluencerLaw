@@ -48,9 +48,6 @@ GROQ_VISION_MODEL_NAME = os.environ.get("HYPECHECK_GROQ_VISION_MODEL", "qwen/qwe
 # Which service is tried first: "gemini" (default) or "groq". The other is the backup.
 PRIMARY_PROVIDER = os.environ.get("HYPECHECK_PROVIDER", "gemini").strip().lower()
 
-AUDD_API_KEY = _setting("AUDD_API_KEY")
-AUDD_ENDPOINT = "https://api.audd.io/"
-
 APP_NAME = "HYPECHECK"
 
 # Persistent disclaimer (HYPECHECK_SPEC.md Section 10 - hard requirement, verbatim,
@@ -93,5 +90,4 @@ MODULE_NAMES = {
     "contract": "Contract Compliance",
     "consumer_protection": "Consumer Protection & E-Commerce",
     "comparative": "Comparative Advertising",
-    "music": "Music Licensing",
 }

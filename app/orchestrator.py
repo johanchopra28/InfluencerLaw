@@ -12,7 +12,6 @@ from app.modules.content_revision import suggest_content_revision
 from app.modules.contract_cross_check import run_contract_cross_check
 from app.modules.contract_review import run_contract_review_check
 from app.modules.disclosure import run_disclosure_check
-from app.modules.music import run_music_check
 from app.pipeline import Issue
 from app.report import Report, build_report
 
@@ -174,15 +173,13 @@ def review_content(
     relationship: str = "",
     category: str = "",
     context: str = "",
-    audio_bytes: bytes | None = None,
-    audio_filename: str = "",
     read_notes: tuple[str, ...] = (),
 ) -> RunResult:
-    """Content service. Reviews a caption, post or script, plus an optional audio
-    track, and proposes a revision if anything was flagged."""
+    """Content service. Reviews a caption, post or script and proposes a revision if
+    anything was flagged."""
     issues: list[Issue] = []
     details: dict = {}
-    modules = ["disclosure", "claims", "comparative", "consumer_protection", "music"]
+    modules = ["disclosure", "claims", "comparative", "consumer_protection"]
 
     meta = "\n".join(
         line
@@ -213,16 +210,11 @@ def review_content(
     issues += found
     details["consumer_protection"] = detail
 
-    found, detail = run_music_check(audio_bytes, audio_filename)
-    issues += found
-    details["music"] = detail
-
     details["revision"] = suggest_content_revision(content_text, issues)
 
     scope = _scope(
         read_notes,
         "India",
         "Reviewed the text you provided against HYPECHECK's legal sources.",
-        "Audio was checked for identifiable commercial music only." if audio_bytes else "",
     )
     return RunResult(build_report(issues, modules), details, modules, scope)

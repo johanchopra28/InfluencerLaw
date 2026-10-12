@@ -22,7 +22,6 @@ import streamlit as st
 from app.config import APP_NAME, MODULE_NAMES, RISK_COLOR_HEX, RISK_HIGH, RISK_LOW, RISK_MEDIUM
 from app.export import build_results_pdf
 from app.orchestrator import RunResult
-from app.pdfgen import generate_license_later_pdf
 from app.pipeline import Issue
 from app.site import compact, esc, notice, reset_state
 from app.sources import source_url
@@ -34,7 +33,6 @@ _SHORT_NAMES = {
     "contract": "Contract Compliance",
     "consumer_protection": "Consumer Protection",
     "comparative": "Comparative Advertising",
-    "music": "Music Licensing",
 }
 _GROUPS = [
     (RISK_HIGH, "High", "Priority flags"),
@@ -337,7 +335,7 @@ def _issue_payload(issue: Issue) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _render_findings(result: RunResult, *, key: str, brand: str, product: str, lawyer_note: str) -> None:
+def _render_findings(result: RunResult, *, key: str, lawyer_note: str) -> None:
     issues = result.report.issues
     if not issues:
         _gap(24)
@@ -363,47 +361,7 @@ def _render_findings(result: RunResult, *, key: str, brand: str, product: str, l
         for i, issue in group:
             with st.container(key=f"flag-{key}-{i}"):
                 st.markdown(_flag_html(issue, lawyer_note), unsafe_allow_html=True)
-                if issue.extra.get("requires_license_later_doc"):
-                    st.markdown(
-                        f'<div class="hc"><div class="hc-small" style="margin-top:18px">{APP_NAME} identifies and '
-                        "flags music. It does not broker or verify licenses. Generate an acknowledgment "
-                        "document for your legal and brand team to sign off once the track is actually "
-                        "cleared.</div></div>",
-                        unsafe_allow_html=True,
-                    )
-                    label = f"{issue.extra.get('artist', '')} - {issue.extra.get('title', '')}"
-                    if issue.extra.get("label"):
-                        label += f" ({issue.extra['label']})"
-                    st.download_button(
-                        "Generate license-later document (PDF)",
-                        data=generate_license_later_pdf(
-                            brand=brand,
-                            product=product,
-                            items=[
-                                {
-                                    "what_detected": label,
-                                    "why_flagged": issue.explanation,
-                                    "required_action": issue.suggested_fix,
-                                }
-                            ],
-                        ),
-                        file_name=f"license-later-{(brand or 'campaign').replace(' ', '_')}.pdf",
-                        mime="application/pdf",
-                        key=f"license-pdf-{key}-{i}",
-                    )
 
-
-def _render_music_notice(result: RunResult) -> None:
-    music = result.details.get("music", {})
-    if music.get("configured") is False:
-        notice(
-            f"Music licensing: {music.get('error', 'AUDD_API_KEY is not set')}. "
-            "This check was skipped, not cleared."
-        )
-    elif music.get("error"):
-        notice(f"The music licensing check failed: {music['error']}")
-    elif music.get("identified") is False:
-        notice(music.get("message", "No copyrighted track detected."))
 
 
 def _render_sources(result: RunResult, heading: str) -> None:
@@ -474,7 +432,7 @@ def render_contract_results(result: RunResult, *, reset_prefix: str) -> None:
     key = "contract"
     points = result.details["contract_review"]["points_to_confirm"]
     _render_summary(result)
-    _render_findings(result, key=key, brand="", product="", lawyer_note="Consult a lawyer before signing this.")
+    _render_findings(result, key=key, lawyer_note="Consult a lawyer before signing this.")
 
     _heading("Missing terms and points to confirm")
     if points:
@@ -510,7 +468,7 @@ def render_campaign_results(result: RunResult, *, reset_prefix: str) -> None:
     overview = detail["overview"]
     _render_summary(result, overview)
     _render_findings(
-        result, key=key, brand="", product="", lawyer_note="Consult a lawyer before proceeding with this campaign."
+        result, key=key, lawyer_note="Consult a lawyer before proceeding with this campaign."
     )
 
     consistency = detail["deliverable_consistency"]
@@ -576,13 +534,12 @@ def render_campaign_results(result: RunResult, *, reset_prefix: str) -> None:
     )
 
 
-def render_content_results(result: RunResult, *, original: str, brand: str, product: str, reset_prefix: str) -> None:
+def render_content_results(result: RunResult, *, original: str, reset_prefix: str) -> None:
     key = "content"
     revision = result.details.get("revision", {})
     _render_summary(result)
-    _render_music_notice(result)
     _render_findings(
-        result, key=key, brand=brand, product=product, lawyer_note="Consult a lawyer before publishing this."
+        result, key=key, lawyer_note="Consult a lawyer before publishing this."
     )
 
     sections: list[tuple[str, list[tuple[str, str]]]] = []

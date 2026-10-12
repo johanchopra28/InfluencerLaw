@@ -1,9 +1,9 @@
-"""HYPECHECK - content check: review a caption, post or script, plus an optional audio track."""
+"""HYPECHECK - content check: review a caption, post or script."""
 from __future__ import annotations
 
 import streamlit as st
 
-from app.config import APP_NAME, AUDD_API_KEY
+from app.config import APP_NAME
 from app.footer import render_footer
 from app.dashboard import render_content_results
 from app.llm import LLMConfigError
@@ -51,7 +51,6 @@ st.set_page_config(
 inject_site_css()
 keep_state(
     f"{P}method", f"{P}text", f"{P}format", f"{P}platform", f"{P}relationship", f"{P}category", f"{P}context",
-    f"{P}brand", f"{P}product",
 )
 render_nav("content")
 page_head(
@@ -118,26 +117,6 @@ with st.container(key="body"):
     st.caption("This context is used only to review the content more accurately. None of it is required.")
 
     st.write("")
-    eyebrow("3. Music (optional)")
-    audio_file = st.file_uploader(
-        "Upload the audio track to check for identifiable commercial music",
-        type=["mp3", "wav", "m4a", "ogg", "flac"],
-        key=upload_key(P, "audio"),
-    )
-    st.caption(
-        "Video files aren't accepted directly. Export or record just the audio track and upload that instead. "
-        "The track is sent to AudD, a music identification service, to find out what song it is. It tells you "
-        "what the song is, not whether you are licensed to use it."
-        + ("" if AUDD_API_KEY else " Music identification is not set up on this site, so this check will be skipped.")
-    )
-    left, right = st.columns(2, gap="large")
-    with left:
-        brand = st.text_input("Brand (optional)", key=f"{P}brand")
-    with right:
-        product = st.text_input("Product (optional)", key=f"{P}product")
-    st.caption("Brand and product are only used to fill in the licence-later document if a track is identified.")
-
-    st.write("")
     clicked = st.button("Check Content", type="primary", key=f"{P}run")
     retry = failure_panel(P)
 
@@ -184,11 +163,9 @@ with st.container(key="body"):
                     relationship=relationship or "",
                     category=category,
                     context=context,
-                    audio_bytes=audio_file.getvalue() if audio_file is not None else None,
-                    audio_filename=audio_file.name if audio_file is not None else "",
                     read_notes=tuple(notes),
                 )
-            st.session_state[f"{P}result"] = (result, content_text, brand, product)
+            st.session_state[f"{P}result"] = (result, content_text)
         except LLMConfigError as e:
             st.error(str(e))
             st.stop()
@@ -198,8 +175,8 @@ with st.container(key="body"):
 
     saved = st.session_state.get(f"{P}result")
     if saved is not None:
-        result, original, saved_brand, saved_product = saved
+        result, original = saved
         st.write("")
-        render_content_results(result, original=original, brand=saved_brand, product=saved_product, reset_prefix=P)
+        render_content_results(result, original=original, reset_prefix=P)
 
 render_footer()

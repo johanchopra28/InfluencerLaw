@@ -1,6 +1,6 @@
 # A change to this file makes Streamlit Cloud restart the app cleanly. Edit this line to force one
 # after changing shared modules (Cloud can otherwise keep an old copy of app/site.py in memory).
-# restart-marker: 2026-10-12h
+# restart-marker: 2026-10-12i
 streamlit>=1.38
 google-genai>=1.0
 pdfplumber>=0.11

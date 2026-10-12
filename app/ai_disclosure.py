@@ -35,7 +35,6 @@ SECTIONS = [
         [
             "Google Gemini is the main service that analyses your text.",
             "If Gemini is unavailable, HYPECHECK may use Groq as a backup, running an open-source model. The results page does not currently say which service answered a particular request.",
-            "If you add an audio track, AudD identifies the music. It is an audio recognition service, not a language model.",
             "The specific models can change without notice, because the services update or retire them.",
             "What you submit is sent to these services to produce your results. The Privacy page explains how that is handled and what the free tiers allow.",
         ],

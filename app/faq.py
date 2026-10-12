@@ -45,7 +45,7 @@ GROUPS = [
             ),
             (
                 "Can I check a video or a Reel?",
-                "Not directly. Paste its script or transcript on the Captions page. For music, you can upload just the audio track.",
+                "Not directly. Paste its script or transcript on the Captions page.",
             ),
             (
                 "Do I have to fill in every field?",
@@ -107,7 +107,7 @@ GROUPS = [
             ),
             (
                 "Which AI does it use?",
-                "Google Gemini, with Groq as a backup if Gemini is unavailable, plus AudD for music identification. The AI disclosure page has the details.",
+                "Google Gemini, with Groq as a backup if Gemini is unavailable. The AI disclosure page has the details.",
             ),
             (
                 "Should I upload a confidential contract?",
