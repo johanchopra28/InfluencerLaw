@@ -137,6 +137,8 @@ _CSS = """
 .st-key-footer-privacy [data-testid="stPageLink"] { width: auto; display: flex; justify-content: center; }
 .st-key-footer-privacy [data-testid="stPageLink-NavLink"] { justify-content: center; }
 .st-key-footer-privacy [data-testid="stPageLink-NavLink"] p { font-size: 17px; font-weight: 700; text-decoration: underline; color: @INK@; }
+.hc-footer .hc-credit { display: inline-block; margin-top: 8px; }
+.hc-footer .hc-credit a { color: @INK@; font-weight: 700; text-decoration: underline; }
 .hc-footer { max-width: 1170px; margin: 0 auto; border-top: 1px solid @HAIR@; padding: 30px 48px 20px; text-align: center; font-size: 12px; line-height: 1.7; color: #7A726B; }
 
 @media (max-width: 820px) {
@@ -237,7 +239,9 @@ def how_and_limits_html() -> str:
         for professional judgment.</p>
         </section>
         <div class="hc-footer">India only. {APP_NAME} is a pre-publication screening aid for a human legal or
-        compliance reviewer, not a guarantee of compliance.<br>{esc(DISCLAIMER_TEXT)}</div>
+        compliance reviewer, not a guarantee of compliance.<br>{esc(DISCLAIMER_TEXT)}<br>
+        <span class="hc-credit">Idea by <a href="https://github.com/vanshikaverma2-7" target="_blank"
+        rel="noopener">Vanshika Verma</a></span></div>
         </div>
         """
     )

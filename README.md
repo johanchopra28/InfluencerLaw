@@ -6,6 +6,8 @@ Pre-publication legal review for influencer marketing campaigns, built for India
 (the repo and deployment URL kept their original name, InfluencerLaw, so existing
 links keep working; the product itself is HYPECHECK throughout.)
 
+Idea by Vanshika Verma ([@vanshikaverma2-7](https://github.com/vanshikaverma2-7)).
+
 HYPECHECK reviews the three things an influencer campaign is made of, a contract, a
 campaign brief and the content itself, and flags legal risk before anything goes live.
 Every flag cites the specific provision behind it. Nothing is a black box, and nothing
