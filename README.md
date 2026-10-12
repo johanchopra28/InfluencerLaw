@@ -70,7 +70,7 @@ review (`app/modules/contract_review.py`) assesses a fixed 12-topic checklist on
 run. Commercial problems that no provision covers (payment, exclusivity, usage rights,
 termination, liability) are still scored, but they carry a "Commercial term" tag, always
 need human review, and cite no legal source. Quoted clauses are checked against the
-contract text, and terms that are only unclear are listed under points to confirm.
+contract text.
 
 Results (`app/report.py`) are grouped as High, Medium and Low priority, with the criteria
 shown on the page. A finding is tagged Potential risk, Missing information or Needs human

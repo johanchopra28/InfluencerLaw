@@ -440,19 +440,8 @@ def _render_summary(result: RunResult, overview: str = "") -> None:
 
 def render_contract_results(result: RunResult, *, reset_prefix: str) -> None:
     key = "contract"
-    points = result.details["contract_review"]["points_to_confirm"]
     _render_summary(result)
     _render_findings(result, key=key, lawyer_note="Consult a lawyer before signing this.")
-
-    _heading("Missing terms and points to confirm")
-    if points:
-        rows = [
-            (p.get("topic", ""), " · ".join(x for x in (p.get("status", ""), p.get("clause_ref", "")) if x), p.get("note", ""))
-            for p in points
-        ]
-        st.markdown(_rows_html(rows), unsafe_allow_html=True)
-    else:
-        notice("No missing or unclear commercial terms were identified.")
 
     rewrites = [i for i in result.report.issues if i.rewritten_text]
     if rewrites:
@@ -463,12 +452,7 @@ def render_contract_results(result: RunResult, *, reset_prefix: str) -> None:
         key=key,
         service="Contract check",
         reset_prefix=reset_prefix,
-        sections=[
-            (
-                "Missing terms and points to confirm",
-                [(f"{p.get('topic', '')} ({p.get('status', '')})", p.get("note", "")) for p in points],
-            )
-        ],
+        sections=[],
     )
 
 
