@@ -135,11 +135,19 @@ def _tag_class(tag: str) -> str:
     return "hc-tag"
 
 
+_ASCI_SUFFIX = "ASCI is a private self-regulatory body. This is an industry standard, not a law."
+
+
+def _is_asci(issue: Issue) -> bool:
+    return issue.legal_citation.strip().upper().startswith("ASCI")
+
+
 def _source_text(issue: Issue) -> str:
     if issue.extra.get("commercial"):
         return "No legal source cited (commercial term)"
     url = source_url(issue.legal_citation)
-    return f"{issue.legal_citation} ({url})" if url else issue.legal_citation
+    text = f"{issue.legal_citation} ({url})" if url else issue.legal_citation
+    return f"{text}. {_ASCI_SUFFIX}" if _is_asci(issue) else text
 
 
 def _link(label: str, url: str | None) -> str:
@@ -237,6 +245,8 @@ def _flag_html(issue: Issue, lawyer_note: str) -> str:
         )
     else:
         source = f'<div class="hc-body">{_link(issue.legal_citation, source_url(issue.legal_citation))}</div>'
+        if _is_asci(issue):
+            source += f'<div class="hc-small" style="margin-top:6px">{esc(_ASCI_SUFFIX)}</div>'
         excerpt = _excerpt(issue.legal_text, f"{issue.evidence} {issue.explanation}") if issue.legal_text else ""
         if excerpt:
             source += f'<div class="hc-small" style="margin-top:6px">{esc(excerpt)}</div>'

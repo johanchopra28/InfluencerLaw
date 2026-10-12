@@ -28,7 +28,7 @@ GROUPS = [
             ),
             (
                 "Which rules does it check against?",
-                "Indian advertising and consumer-protection sources: the ASCI Code, the ASCI Influencer Advertising Guidelines, the CCPA Guidelines for Prevention of Misleading Advertisements and Endorsements 2022, the Consumer Protection Act 2019 and the Consumer Protection (E-Commerce) Rules 2020. It does not cover other countries or other areas of law.",
+                "Indian advertising and consumer-protection sources: the ASCI Code, the ASCI Influencer Advertising Guidelines, the CCPA Guidelines for Prevention of Misleading Advertisements and Endorsements 2022, the Consumer Protection Act 2019 and the Consumer Protection (E-Commerce) Rules 2020. It does not cover other countries or other areas of law. ASCI is a private self-regulatory body, so its Code and guidelines are industry standards, not statutes.",
             ),
         ],
     ),
@@ -111,7 +111,36 @@ GROUPS = [
             ),
             (
                 "Should I upload a confidential contract?",
-                "Think carefully first. On free tiers, an AI provider may use submitted content to improve its products and may have people review it. Remove sensitive parts, or avoid uploading material you are not authorised to share.",
+                "Please do not upload sensitive contractual information. Remove or redact personal data of other people, financial terms you are not free to share and confidential material first, and if you cannot, do not upload it. On free tiers, an AI provider may use submitted content to improve its products and may have people review it.",
+            ),
+        ],
+    ),
+    (
+        "Legal and policy",
+        [
+            (
+                "Who is responsible if a third-party AI service mishandles my data?",
+                "HYPECHECK sends what you submit to Google Gemini and, as a backup, Groq, and it is hosted on Streamlit Community Cloud. We cannot warrant, and are not responsible for, any infringement of data privacy on the part of those third parties. Checking their privacy policies and terms, and any other verification you need, is your responsibility. The Privacy page links to them.",
+            ),
+            (
+                "Is ASCI the law?",
+                "No. ASCI is a private, self-regulatory body, and its Code and guidelines are industry standards. HYPECHECK uses them as an additional reference alongside statutory sources such as the Consumer Protection Act 2019 and the CCPA guidelines. A flag that cites only an ASCI provision should be read with that in mind.",
+            ),
+            (
+                "Do the 2026 IT Rules on AI-generated content apply to HYPECHECK?",
+                "In February 2026 India amended the IT Rules to cover synthetically generated information, which is defined as audio, visual or audio-visual content that appears real. Our reading is that this does not apply to HYPECHECK, because it produces text only and does not create or host such media. This is our own analysis and not a formal legal opinion, and the rules may change. The AI disclosure page explains more.",
+            ),
+            (
+                "Does HYPECHECK check whether my AI-generated images, audio or video are labelled?",
+                "No. If you publish AI-generated or AI-altered media, or scripts for it, check the rules and the platform's policies yourself.",
+            ),
+            (
+                "Is HYPECHECK a registered trademark?",
+                "No. HYPECHECK is a name we have chosen to use. We do not currently own a trademark in it and make no claim to exclusive rights in the name.",
+            ),
+            (
+                "Where are the terms of use?",
+                "On the Terms page, linked in the footer of every page.",
             ),
         ],
     ),

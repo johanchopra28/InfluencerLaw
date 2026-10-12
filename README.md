@@ -106,9 +106,10 @@ app.py                                Landing page (Streamlit entry point)
 pages/1_Contract_Check.py             Contract service
 pages/2_Campaign_Check.py             Campaign service
 pages/3_Content_Check.py              Content service
-pages/4_Privacy.py                    Privacy and data handling
+pages/4_Privacy.py                    Privacy policy
 pages/5_AI_Disclosure.py               AI disclosure: what the AI does, what it runs on, its limits
 pages/6_FAQ.py                         Frequently asked questions
+pages/7_Terms.py                       Terms of use
 app/site.py                           shared look: palette, base styles, navigation, page header
 app/landing.py                        landing page markup and styles
 app/dashboard.py                      results display shared by the three services
@@ -123,6 +124,9 @@ app/export.py                         PDF export of results
 app/privacy.py                        privacy copy
 app/ai_disclosure.py                   AI disclosure copy
 app/faq.py                            FAQ copy
+app/terms.py                          terms of use copy
+app/legal.py                          shared legal wording (third-party disclaimer, sensitive-data warning, ASCI note, name notice)
+app/footer.py                         the shared footer
 app/sources.py                        verified links to legal sources
 app/modules/                          the individual checks (see the table above)
 data/legal_sources/*.md               cleaned source text for the retrieval layer
