@@ -95,8 +95,8 @@ status. The shared look lives in `app/site.py`; the landing page adds its own st
 - Content input: pasted text, a PDF, DOCX or TXT file, or an image (only text visible in
   the image is read). Video upload isn't supported yet; paste the script instead.
 - Documents: text-based PDF, DOCX or TXT up to 25 MB. Scanned PDFs, .doc, Excel and
-  PowerPoint aren't supported yet, and the page says so. Uploads are cleared when you
-  leave a page; typed fields are kept.
+  PowerPoint aren't supported yet, and the page says so. Uploads and typed text are
+  cleared when you leave a page.
 - A legal resource repository and AI-generated content detection aren't built yet.
 
 ## Project layout

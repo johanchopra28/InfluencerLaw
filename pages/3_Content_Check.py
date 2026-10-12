@@ -79,10 +79,7 @@ with st.container(key="body"):
                     "Content file (required)", type=DOCUMENT_TYPES, key=upload_key(P, "file"),
                     help=f"Accepted: {DOCUMENT_TYPES_LABEL}. Maximum size 25 MB.",
                 )
-                st.caption(
-                    f"Accepted: {DOCUMENT_TYPES_LABEL}. Maximum size 25 MB. If you leave this page the upload is "
-                    "cleared; everything else you enter is kept."
-                )
+                st.caption(f"Accepted: {DOCUMENT_TYPES_LABEL}. Maximum size 25 MB.")
             else:
                 image = st.file_uploader(
                     "Image of the post (required)", type=["png", "jpg", "jpeg"], key=upload_key(P, "image"),

@@ -80,7 +80,7 @@ with st.container(key="body"):
         st.caption(
             f"Accepted: {DOCUMENT_TYPES_LABEL}. Maximum size 25 MB. You do not need both a brief and the details "
             "below. Text in images, charts or embedded objects in a brief can't be read, and you will be told if "
-            "that applies. If you leave this page the upload is cleared; everything else you enter is kept."
+            "that applies."
         )
     with right:
         privacy_notice()

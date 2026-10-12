@@ -76,7 +76,7 @@ with st.container(key="body"):
             field_message("upload", errors)
         st.caption(
             f"Accepted: {DOCUMENT_TYPES_LABEL}. Maximum size 25 MB. A searchable PDF works best. Scanned PDFs "
-            "can't be read yet. If you leave this page the upload is cleared; everything else you enter is kept."
+            "can't be read yet."
         )
     with right:
         privacy_notice()
