@@ -28,6 +28,12 @@ HYPECHECK is a screening tool, not legal advice.
    GEMINI_API_KEY=...
    GROQ_API_KEY=...          # optional backup if Gemini fails (https://console.groq.com/keys)
    ```
+   On Streamlit Community Cloud, put the same two keys in the app's Secrets instead
+   (never in the repo). Keys are read from the environment first, then from Secrets.
+   Gemini (`gemini-flash-lite-latest`) answers first; Groq (`openai/gpt-oss-120b`, and a
+   vision model for images) takes over if Gemini fails. Set `HYPECHECK_PROVIDER=groq` to
+   flip the order. If both fail, the page says why in plain words and never shows the
+   document text in logs.
 3. Run it:
    ```bash
    streamlit run app.py
@@ -41,9 +47,9 @@ asks only for the fields it needs.
 
 | Service | Page | What it takes | What it checks |
 |---|---|---|---|
-| Contract check | `pages/1_Contract_Check.py` | A contract (PDF, DOCX or TXT), optional role, jurisdiction and focus areas, optionally a caption to test against it | Potentially risky clauses, expected clauses that are missing, missing or unclear commercial terms, and (with a caption) whether the content breaks the contract's own rules |
+| Contract check | `pages/1_Contract_Check.py` | A contract (PDF, DOCX or TXT), optional role, jurisdiction and focus areas, optionally a caption to test against it | Potentially risky or one-sided clauses (legal flags with a cited provision, and commercial terms marked for human review), suggested drafting directions, and (with a caption) whether the content breaks the contract's own rules |
 | Campaign check | `pages/2_Campaign_Check.py` | A brief (PDF, DOCX or TXT) that pre-fills the form, or the details entered by hand: campaign type, deliverables, requirements, supporting materials | Claim substantiation, disclosure plan, comparisons, consumer-protection exposure |
-| Content check | `pages/3_Content_Check.py` | Pasted text, a file, or an image of a post; optional format, platform, relationship and context | Disclosure, claim substantiation, comparisons, consumer-protection exposure |
+| Content check | `pages/3_Content_Check.py` | Pasted text, a file, or an image of a post; optional format, platform, relationship and context | Disclosure, claim substantiation, comparisons, consumer-protection exposure, plus a suggested revised caption with the changes highlighted (`app/modules/content_revision.py`) |
 
 Each service runs only the checks that make sense for its inputs
 (`app/orchestrator.py`), groups the flags by priority, and shows the results on the same page. There is no score and no "approved" status: the tool never certifies content as compliant.
@@ -76,9 +82,35 @@ Results (`app/report.py`) are grouped as High, Medium and Low priority, with the
 shown on the page. A finding is tagged Potential risk, Missing information or Needs human
 review. Results can be exported as a PDF generated for the session (`app/export.py`).
 
-Privacy copy (`app/privacy.py`) describes what the app actually does: nothing is written
-to disk, the Gemini free tier may use submitted content to improve Google's products, and
-Groq may be used as a backup. Revisit it if the app moves to a paid Gemini key.
+Suggested wording of any kind (claim and comparative rewrites, contract drafting
+directions, the suggested caption revision, and the PDF export) is labelled as a starting
+point that needs a contextualised factual and legal check and must not be used as is.
+Drafting directions also carry a line asking for legal advice specific to the context and
+the contractual dealing. A result that cites only an ASCI provision says that ASCI is a
+private self-regulatory body and asks the reader to follow it up with the relevant law
+and professional legal advice.
+
+## Legal and policy pages
+
+All of this copy is a first draft for review by a qualified Indian lawyer. Each page
+reads from a module in `app/`, and the shared wording lives in `app/legal.py` so it
+stays consistent. Update `LEGAL_UPDATED` there whenever any of it changes.
+
+- **Terms of use** (`app/terms.py`): screening tool only, no lawyer-client relationship,
+  no warranty, user responsibility, the name notice (no trademark claimed).
+- **Privacy policy** (`app/privacy.py`): what is sent to Gemini, Groq and Streamlit,
+  that nothing is written to disk by the app, that submissions are not used to train
+  models by HYPECHECK, and a warning not to upload sensitive contractual information.
+  Providers handle data under their own terms, and users must check those themselves.
+  Revisit it if the app moves to a paid Gemini key.
+- **AI disclosure** (`app/ai_disclosure.py`): what the AI does and cannot do, the
+  services, the legal sources (including ASCI's status), known limitations from our own
+  testing, and an analysis of the February 2026 IT Rules amendments on synthetic media
+  (our reading is that they do not reach a text-only tool; not a formal opinion).
+- **FAQ** (`app/faq.py`) and a shared **footer** (`app/footer.py`) on every page.
+
+`CONTACT_EMAIL` in `app/legal.py` is empty on purpose: the contact line stays hidden
+until a real contact or grievance address is set.
 
 ## Design
 
@@ -97,7 +129,18 @@ status. The shared look lives in `app/site.py`; the landing page adds its own st
 - Documents: text-based PDF, DOCX or TXT up to 25 MB. Scanned PDFs, .doc, Excel and
   PowerPoint aren't supported yet, and the page says so. Uploads and typed text are
   cleared when you leave a page.
-- A legal resource repository and AI-generated content detection aren't built yet.
+- Music and audio checking, and other audio features, are not part of HYPECHECK.
+- The IT Rules (2026) on AI-generated media and a legal resource repository aren't built
+  into the checks.
+- Known weaknesses are listed on the AI disclosure page: missing clauses are rarely
+  detected, results can vary between runs, accuracy is lower on agency, talent and print
+  contracts, and free-tier limits mean several simultaneous checks can fail.
+
+## Deploying
+
+The app is deployed on Streamlit Community Cloud. Cloud keeps old imported modules after a
+push, so `requirements.txt` carries a `# restart-marker:` comment; change it with any push
+that edits Python modules to force a clean restart.
 
 ## Project layout
 
