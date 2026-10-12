@@ -14,15 +14,13 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT
-from app.ai_disclosure import AI_DISCLOSURE_PATH
-from app.faq import FAQ_PATH
+from app.footer import render_footer
 from app.site import (
     BLUSH,
     CREAM,
     HAIR,
     INK,
     PAD,
-    PRIVACY_PATH,
     RED,
     SANS,
     SERIF,
@@ -133,13 +131,6 @@ _CSS = """
 .hc-limit span { font-family: @SERIF@; color: #9C918A; font-size: 18px; }
 .hc-closing { font-family: @SERIF@; font-style: italic; font-size: 21px; line-height: 1.5; max-width: 640px; margin: 44px 0 0; }
 
-.st-key-footer-privacy { padding: 0 0 56px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 12px 36px; }
-.st-key-footer-privacy [data-testid="stPageLink"] { width: auto; display: flex; justify-content: center; }
-.st-key-footer-privacy [data-testid="stPageLink-NavLink"] { justify-content: center; }
-.st-key-footer-privacy [data-testid="stPageLink-NavLink"] p { font-size: 17px; font-weight: 700; text-decoration: underline; color: @INK@; }
-.hc-footer .hc-credit { display: inline-block; margin-top: 8px; }
-.hc-footer .hc-credit a { color: @INK@; font-weight: 700; text-decoration: underline; }
-.hc-footer { max-width: 1170px; margin: 0 auto; border-top: 1px solid @HAIR@; padding: 30px 48px 20px; text-align: center; font-size: 12px; line-height: 1.7; color: #7A726B; }
 
 @media (max-width: 820px) {
     .st-key-hero { padding: 48px 24px 40px; }
@@ -150,7 +141,6 @@ _CSS = """
     .hc-flow, .hc-flow:first-child { border-left: none; border-top: 1px solid #CDBBB0; padding: 24px 0; }
     .hc-flow:first-child { border-top: none; }
     .hc-limits { grid-template-columns: 1fr; }
-    .hc-footer { padding: 28px 24px 56px; }
     [class*="st-key-cardtitle-"], .hc p.hc-card-p { min-height: 0 !important; }
 }
 @media (max-width: 640px) {
@@ -238,11 +228,6 @@ def how_and_limits_html() -> str:
         <p class="hc-closing">The purpose is to help you identify potential problems early, not to eliminate the need
         for professional judgment.</p>
         </section>
-        <div class="hc-footer">India only. {APP_NAME} is a pre-publication screening aid for a human legal or
-        compliance reviewer, not a guarantee of compliance.<br>{esc(DISCLAIMER_TEXT)}<br>
-        <span class="hc-credit">By <a href="https://github.com/vanshikaverma2-7" target="_blank"
-        rel="noopener">Vanshika Verma</a> and <a href="https://github.com/johanchopra28" target="_blank"
-        rel="noopener">Johan Chopra</a></span></div>
         </div>
         """
     )
@@ -274,7 +259,4 @@ def render_landing() -> None:
                         st.page_link(svc["path"], label=svc["cta"])
 
     st.markdown(how_and_limits_html(), unsafe_allow_html=True)
-    with st.container(key="footer-privacy"):
-        st.page_link(FAQ_PATH, label="FAQ")
-        st.page_link(AI_DISCLOSURE_PATH, label="AI disclosure")
-        st.page_link(PRIVACY_PATH, label="Privacy and data handling")
+    render_footer()

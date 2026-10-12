@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME
+from app.footer import render_footer
 from app.dashboard import render_contract_results
 from app.llm import LLMConfigError
 from app.orchestrator import review_contract
@@ -156,3 +157,5 @@ with st.container(key="body"):
     if result is not None:
         st.write("")
         render_contract_results(result, reset_prefix=P)
+
+render_footer()

@@ -5,6 +5,7 @@ import streamlit as st
 
 from app.ai_disclosure import AI_DISCLOSURE_PATH
 from app.config import APP_NAME
+from app.footer import render_footer
 from app.faq import GROUPS, LEDE, TITLE
 from app.site import PRIVACY_PATH, compact, esc, inject_site_css, page_head, render_nav
 
@@ -33,3 +34,5 @@ with st.container(key="body"):
         st.page_link(AI_DISCLOSURE_PATH, label="AI disclosure")
     with right:
         st.page_link(PRIVACY_PATH, label="Privacy and data handling")
+
+render_footer()

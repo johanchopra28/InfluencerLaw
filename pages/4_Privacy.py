@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME
+from app.footer import render_footer
 from app.privacy import FULL_NOTICE, FULL_TITLE
 from app.site import compact, esc, inject_site_css, page_head, render_nav
 
@@ -28,3 +29,5 @@ with st.container(key="body"):
             compact(f'<div class="hc"><h2 class="hc-h2">{esc(heading)}</h2>{body}</div>'),
             unsafe_allow_html=True,
         )
+
+render_footer()

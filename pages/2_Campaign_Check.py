@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 
 from app.config import APP_NAME
+from app.footer import render_footer
 from app.dashboard import render_campaign_results
 from app.llm import LLMConfigError
 from app.modules.campaign_review import CAMPAIGN_TYPES, JURISDICTIONS, extract_brief_fields
@@ -263,3 +264,5 @@ with st.container(key="body"):
     if result is not None:
         st.write("")
         render_campaign_results(result, reset_prefix=P)
+
+render_footer()

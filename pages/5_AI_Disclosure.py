@@ -5,6 +5,7 @@ import streamlit as st
 
 from app.ai_disclosure import LAST_UPDATED, LEDE, SECTIONS, TITLE
 from app.config import APP_NAME
+from app.footer import render_footer
 from app.faq import FAQ_PATH
 from app.site import PRIVACY_PATH, compact, esc, inject_site_css, page_head, render_nav
 
@@ -39,3 +40,5 @@ with st.container(key="body"):
         st.page_link(PRIVACY_PATH, label="Privacy and data handling")
     with right:
         st.page_link(FAQ_PATH, label="Frequently asked questions")
+
+render_footer()

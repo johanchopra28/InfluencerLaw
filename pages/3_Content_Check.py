@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 
 from app.config import APP_NAME, AUDD_API_KEY
+from app.footer import render_footer
 from app.dashboard import render_content_results
 from app.llm import LLMConfigError
 from app.orchestrator import review_content
@@ -200,3 +201,5 @@ with st.container(key="body"):
         result, original, saved_brand, saved_product = saved
         st.write("")
         render_content_results(result, original=original, brand=saved_brand, product=saved_product, reset_prefix=P)
+
+render_footer()
