@@ -241,7 +241,8 @@ def how_and_limits_html() -> str:
         <div class="hc-footer">India only. {APP_NAME} is a pre-publication screening aid for a human legal or
         compliance reviewer, not a guarantee of compliance.<br>{esc(DISCLAIMER_TEXT)}<br>
         <span class="hc-credit">By <a href="https://github.com/vanshikaverma2-7" target="_blank"
-        rel="noopener">Vanshika Verma</a></span></div>
+        rel="noopener">Vanshika Verma</a> and <a href="https://github.com/johanchopra28" target="_blank"
+        rel="noopener">Johan Chopra</a></span></div>
         </div>
         """
     )
