@@ -135,7 +135,7 @@ def _tag_class(tag: str) -> str:
     return "hc-tag"
 
 
-_ASCI_SUFFIX = "ASCI is a private self-regulatory body. This is an industry standard, not a law."
+_ASCI_SUFFIX = "ASCI is a private self-regulatory body. Please follow this up with a thorough reading of the relevant law and contextualised professional legal advice."
 
 
 def _is_asci(issue: Issue) -> bool:

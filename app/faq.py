@@ -28,7 +28,7 @@ GROUPS = [
             ),
             (
                 "Which rules does it check against?",
-                "Indian advertising and consumer-protection sources: the ASCI Code, the ASCI Influencer Advertising Guidelines, the CCPA Guidelines for Prevention of Misleading Advertisements and Endorsements 2022, the Consumer Protection Act 2019 and the Consumer Protection (E-Commerce) Rules 2020. It does not cover other countries or other areas of law. ASCI is a private self-regulatory body, so its Code and guidelines are industry standards, not statutes.",
+                "Indian advertising and consumer-protection sources: the ASCI Code, the ASCI Influencer Advertising Guidelines, the CCPA Guidelines for Prevention of Misleading Advertisements and Endorsements 2022, the Consumer Protection Act 2019 and the Consumer Protection (E-Commerce) Rules 2020. It does not cover other countries or other areas of law. ASCI is a private self-regulatory body.",
             ),
         ],
     ),
@@ -123,8 +123,8 @@ GROUPS = [
                 "HYPECHECK sends what you submit to Google Gemini and, as a backup, Groq, and it is hosted on Streamlit Community Cloud. We cannot warrant, and are not responsible for, any infringement of data privacy on the part of those third parties. Checking their privacy policies and terms, and any other verification you need, is your responsibility. The Privacy page links to them.",
             ),
             (
-                "Is ASCI the law?",
-                "No. ASCI is a private, self-regulatory body, and its Code and guidelines are industry standards. HYPECHECK uses them as an additional reference alongside statutory sources such as the Consumer Protection Act 2019 and the CCPA guidelines. A flag that cites only an ASCI provision should be read with that in mind.",
+                "How should I treat a flag that cites ASCI?",
+                "ASCI is a private, self-regulatory body. HYPECHECK uses its Code and guidelines as an additional reference alongside statutory sources such as the Consumer Protection Act 2019 and the CCPA guidelines. A flag that cites only an ASCI provision should be read with that in mind, and followed up with a thorough reading of the relevant law and contextualised professional legal advice.",
             ),
             (
                 "Do the 2026 IT Rules on AI-generated content apply to HYPECHECK?",

@@ -35,11 +35,11 @@ THIRD_PARTY_DISCLAIMER = (
 )
 
 ASCI_NOTE = (
-    "The Advertising Standards Council of India (ASCI) is a private, self-regulatory body. Its Code and "
-    "guidelines are industry standards, not statutes, and falling short of them is not in itself a breach of "
-    "law. HYPECHECK uses them as an additional reference alongside statutory sources such as the Consumer "
+    "The Advertising Standards Council of India (ASCI) is a private, self-regulatory body. HYPECHECK uses "
+    "its Code and guidelines as an additional reference alongside statutory sources such as the Consumer "
     "Protection Act, 2019 and the guidelines issued under it by the Central Consumer Protection Authority. A "
-    "flag that cites only an ASCI provision should be read with that in mind."
+    "flag that cites only an ASCI provision should be read with that in mind. Please follow it up with a "
+    "thorough reading of the relevant law and contextualised professional legal advice."
 )
 
 TRADEMARK_NOTE = (

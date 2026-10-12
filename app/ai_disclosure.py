@@ -58,7 +58,7 @@ SECTIONS = [
         "",
         [
             ASCI_NOTE,
-            "Where a result cites an ASCI provision, the results page says so. Treat it as an industry standard that is worth checking, and look to statutory sources and your own legal advice before drawing a conclusion about the law.",
+            "Where a result cites an ASCI provision, the results page says so, and asks you to follow it up with a thorough reading of the relevant law and contextualised professional legal advice.",
             "The sources do not cover contract law, tax, intellectual property, data-protection law in general, or the rules on AI-generated media described below.",
             "They may be incomplete or out of date, and quoted passages may be shortened. Check the official text before relying on any of them.",
         ],
