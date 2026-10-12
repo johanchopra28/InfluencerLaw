@@ -281,6 +281,9 @@ def _rows_html(rows: list[tuple[str, str, str]]) -> str:
     return f'<div class="hc"><div class="hc-rows">{inner}</div></div>'
 
 
+_ADVICE_LINE = "Please take legal advice as applicable to the context and the contractual dealing."
+
+
 def _rewrites_html(issues: list[Issue], heading: str) -> str:
     cards = []
     for issue in issues:
@@ -293,7 +296,8 @@ def _rewrites_html(issues: list[Issue], heading: str) -> str:
             f'<div class="hc-rewrite" style="border-left:4px solid {_color(issue.risk)}">'
             f'<div class="hc-flag-label" style="color:{_color(issue.risk)}">{esc(_label(issue.module).upper())}</div>'
             f'<div class="hc-rw-grid">{original}'
-            f'<div><div class="hc-mini">Suggested</div><div class="hc-body">{esc(issue.rewritten_text)}</div></div></div></div>'
+            f'<div><div class="hc-mini">Suggested</div><div class="hc-body">{esc(issue.rewritten_text)}</div>'
+            f'<div class="hc-small" style="margin-top:8px">{esc(_ADVICE_LINE)}</div></div></div></div>'
         )
     return compact(
         f'<div class="hc"><div class="hc-eyebrow" style="margin-top:44px">{esc(heading)}</div>'
