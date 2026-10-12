@@ -25,6 +25,7 @@ from app.site import (
     gate,
     inject_site_css,
     keep_state,
+    note_failure,
     notice,
     page_head,
     privacy_notice,
@@ -190,8 +191,8 @@ with st.container(key="body"):
         except LLMConfigError as e:
             st.error(str(e))
             st.stop()
-        except Exception:
-            st.session_state[f"{P}failed"] = True
+        except Exception as e:
+            note_failure(P, e)
             st.rerun()
 
     saved = st.session_state.get(f"{P}result")

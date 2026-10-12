@@ -14,6 +14,7 @@ import os
 import streamlit as st
 
 from app.config import APP_NAME, DISCLAIMER_TEXT, RISK_COLOR_HEX
+from app.llm import describe_failure
 from app.privacy import SHORT_NOTICE, SHORT_TITLE
 
 CREAM = "#F9F3EC"
@@ -376,9 +377,16 @@ def fail_field(prefix: str, name: str, message: str) -> None:
     st.rerun()
 
 
+def note_failure(prefix: str, exc: Exception) -> None:
+    """Remember that the analysis failed and why, so the page can say what happened."""
+    st.session_state[f"{prefix}failed"] = True
+    st.session_state[f"{prefix}failed_reason"] = describe_failure(exc)
+
+
 def failure_panel(prefix: str) -> bool:
     """Shown after a failed analysis. Returns True when the user clicks Try again."""
     if not st.session_state.get(f"{prefix}failed"):
         return False
-    st.error(ANALYSIS_FAILED)
+    reason = st.session_state.get(f"{prefix}failed_reason") or ANALYSIS_FAILED
+    st.error(f"{reason} Everything you entered is still on this page.")
     return st.button("Try again", key=f"{prefix}retry")

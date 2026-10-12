@@ -205,6 +205,43 @@ def _groq_request(model, messages, max_tokens, temperature):
     raise GroqError(None, "Groq call did not complete")
 
 
+def describe_failure(exc):
+    """A short, plain explanation of why an analysis call failed. It never includes
+    document text or the service's own message, only the kind of problem."""
+    code = getattr(exc, "code", None)
+    if isinstance(exc, LLMConfigError):
+        return (
+            "No analysis service is set up on this site yet. The site owner needs to add an API key. "
+            "Trying again will not help."
+        )
+    if isinstance(exc, ValueError):
+        return "The analysis service returned an answer that could not be read. Trying again may help."
+    detail = str(exc).lower()
+    key_rejected = code in (401, 403) or "api_key_invalid" in detail or "api key not valid" in detail or "api key expired" in detail
+    if key_rejected:
+        return (
+            f"The analysis service rejected this site's API key (status {code}). This is a setup problem on the "
+            "site, so trying again will not help. The site owner needs to update the key."
+        )
+    if code == 404:
+        return (
+            "The analysis service could not find the model this site asks for (status 404). This is a setup "
+            "problem, so trying again will not help."
+        )
+    if code == 400:
+        return (
+            "The analysis service could not process this request (status 400). If your text is very long, "
+            "try a shorter version."
+        )
+    if code == 429:
+        return "The analysis service is busy or over its free limit (status 429). Wait a minute, then try again."
+    if isinstance(code, int) and code >= 500:
+        return f"The analysis service is temporarily unavailable (status {code}). Try again shortly."
+    if code is None:
+        return "The site could not reach the analysis service. Try again shortly."
+    return f"The analysis service returned an error (status {code}). Try again shortly."
+
+
 def _provider_order():
     """The services that have a key, first-choice first."""
     order = ["groq", "gemini"] if PRIMARY_PROVIDER == "groq" else ["gemini", "groq"]
